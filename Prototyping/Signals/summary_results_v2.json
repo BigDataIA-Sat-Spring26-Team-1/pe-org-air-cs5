@@ -1,0 +1,57 @@
+[
+    {
+        "company_id": "5a780160-b1e4-46de-b930-0c0c0d1b3ce7",
+        "ticker": "CAT",
+        "technology_hiring_score": 66.23,
+        "innovation_activity_score": 0.0,
+        "digital_presence_score": 0.0,
+        "leadership_signals_score": 0.0,
+        "composite_score": 26.49,
+        "signal_count": 3,
+        "last_updated": "2026-02-04 21:50:07.548312"
+    },
+    {
+        "company_id": "0402ce06-869d-49d9-9f01-6a3e42e5a2d8",
+        "ticker": "DE",
+        "technology_hiring_score": 33.33,
+        "innovation_activity_score": 0.0,
+        "digital_presence_score": 0.0,
+        "leadership_signals_score": 0.0,
+        "composite_score": 13.33,
+        "signal_count": 3,
+        "last_updated": "2026-02-04 21:50:45.210519"
+    },
+    {
+        "company_id": "3d9b2433-ae91-4826-8ff9-416d105f0334",
+        "ticker": "UNH",
+        "technology_hiring_score": 77.22,
+        "innovation_activity_score": 0.0,
+        "digital_presence_score": 0.0,
+        "leadership_signals_score": 0.0,
+        "composite_score": 30.89,
+        "signal_count": 3,
+        "last_updated": "2026-02-04 21:51:14.440895"
+    },
+    {
+        "company_id": "f71df66c-633a-4399-a473-c5152b5b4b15",
+        "ticker": "HCA",
+        "technology_hiring_score": 0.0,
+        "innovation_activity_score": 0.0,
+        "digital_presence_score": 0.0,
+        "leadership_signals_score": 0.0,
+        "composite_score": 0.0,
+        "signal_count": 3,
+        "last_updated": "2026-02-04 21:51:28.727534"
+    },
+    {
+        "company_id": "cac31ca8-e0cb-42cc-9941-42268e3c9d6e",
+        "ticker": "ADP",
+        "technology_hiring_score": 0.0,
+        "innovation_activity_score": 0.0,
+        "digital_presence_score": 0.0,
+        "leadership_signals_score": 0.0,
+        "composite_score": 0.0,
+        "signal_count": 3,
+        "last_updated": "2026-02-04 21:51:39.862168"
+    }
+]

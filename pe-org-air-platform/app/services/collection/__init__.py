@@ -1,0 +1,1 @@
+"""Analyst Notes collection package."""

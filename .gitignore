@@ -1,0 +1,24 @@
+.DS_Store
+.env
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Pytest
+.pytest_cache/
+
+# Logs
+logs/
+
+# Data
+data/
+*.bin
+
+# Glassdoor Kaggle Dataset
+all_reviews.csv
+target_company_reviews_strict.csv
+target_company_reviews.csv

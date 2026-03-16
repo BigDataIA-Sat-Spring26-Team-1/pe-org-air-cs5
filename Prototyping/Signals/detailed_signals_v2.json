@@ -1,0 +1,821 @@
+[
+    {
+        "id": "5c171642-61e8-4730-9192-8070bf0526de",
+        "company_id": "5a780160-b1e4-46de-b930-0c0c0d1b3ce7",
+        "category": "technology_hiring",
+        "source": "LinkedIn",
+        "signal_date": "2026-02-04",
+        "raw_value": "28 AI roles found within 31 tech openings",
+        "normalized_score": 66.23,
+        "confidence": 0.85,
+        "metadata": {
+            "job_evidence": [
+                {
+                    "title": "Coordinator, Creative Production",
+                    "url": "https://www.linkedin.com/jobs/view/4369266651",
+                    "is_ai": true,
+                    "categories": [
+                        "Computer Vision",
+                        "NLP"
+                    ],
+                    "skills": [],
+                    "posted_at": "None"
+                },
+                {
+                    "title": "Coordinator, Research & Development",
+                    "url": "https://www.linkedin.com/jobs/view/4369273661",
+                    "is_ai": true,
+                    "categories": [
+                        "Computer Vision"
+                    ],
+                    "skills": [],
+                    "posted_at": "None"
+                },
+                {
+                    "title": "Trainee, Client Relations",
+                    "url": "https://www.linkedin.com/jobs/view/4369263620",
+                    "is_ai": true,
+                    "categories": [
+                        "NLP"
+                    ],
+                    "skills": [],
+                    "posted_at": "None"
+                },
+                {
+                    "title": "Analyst, Mergers & Acquisitions",
+                    "url": "https://www.linkedin.com/jobs/view/4368786240",
+                    "is_ai": true,
+                    "categories": [
+                        "NLP"
+                    ],
+                    "skills": [],
+                    "posted_at": "None"
+                },
+                {
+                    "title": "Senior Director, eCommerce",
+                    "url": "https://www.linkedin.com/jobs/view/4369294039",
+                    "is_ai": true,
+                    "categories": [
+                        "NLP"
+                    ],
+                    "skills": [],
+                    "posted_at": "None"
+                },
+                {
+                    "title": "Senior Director, eCommerce",
+                    "url": "https://www.linkedin.com/jobs/view/4369294042",
+                    "is_ai": true,
+                    "categories": [
+                        "NLP"
+                    ],
+                    "skills": [],
+                    "posted_at": "None"
+                },
+                {
+                    "title": "Division President; Global Partners",
+                    "url": "https://www.linkedin.com/jobs/view/4369268054",
+                    "is_ai": true,
+                    "categories": [
+                        "Computer Vision"
+                    ],
+                    "skills": [],
+                    "posted_at": "None"
+                },
+                {
+                    "title": "Coordinator, Influencer Partnerships",
+                    "url": "https://www.linkedin.com/jobs/view/4369272577",
+                    "is_ai": true,
+                    "categories": [
+                        "Computer Vision"
+                    ],
+                    "skills": [],
+                    "posted_at": "None"
+                },
+                {
+                    "title": "Membership Coordinator",
+                    "url": "https://www.linkedin.com/jobs/view/4369266070",
+                    "is_ai": true,
+                    "categories": [
+                        "NLP"
+                    ],
+                    "skills": [],
+                    "posted_at": "None"
+                },
+                {
+                    "title": "Trainee, Retail Onboarding & Training",
+                    "url": "https://www.linkedin.com/jobs/view/4369259746",
+                    "is_ai": true,
+                    "categories": [
+                        "Computer Vision",
+                        "NLP"
+                    ],
+                    "skills": [],
+                    "posted_at": "None"
+                },
+                {
+                    "title": "Senior Director, eCommerce",
+                    "url": "https://www.linkedin.com/jobs/view/4369291060",
+                    "is_ai": true,
+                    "categories": [
+                        "NLP"
+                    ],
+                    "skills": [],
+                    "posted_at": "None"
+                },
+                {
+                    "title": "Coordinator, Community Management",
+                    "url": "https://www.linkedin.com/jobs/view/4369274554",
+                    "is_ai": true,
+                    "categories": [
+                        "Computer Vision",
+                        "NLP"
+                    ],
+                    "skills": [],
+                    "posted_at": "None"
+                },
+                {
+                    "title": "Senior Director, eCommerce",
+                    "url": "https://www.linkedin.com/jobs/view/4369280238",
+                    "is_ai": true,
+                    "categories": [
+                        "NLP"
+                    ],
+                    "skills": [],
+                    "posted_at": "None"
+                },
+                {
+                    "title": "Marketing Manager",
+                    "url": "https://www.linkedin.com/jobs/view/4369293010",
+                    "is_ai": true,
+                    "categories": [
+                        "NLP"
+                    ],
+                    "skills": [],
+                    "posted_at": "None"
+                },
+                {
+                    "title": "Coordinator, Innovation Product Marketing",
+                    "url": "https://www.linkedin.com/jobs/view/4369257846",
+                    "is_ai": true,
+                    "categories": [
+                        "Computer Vision"
+                    ],
+                    "skills": [],
+                    "posted_at": "None"
+                },
+                {
+                    "title": "Assistant Project Manager",
+                    "url": "https://www.linkedin.com/jobs/view/4369269260",
+                    "is_ai": true,
+                    "categories": [
+                        "Computer Vision"
+                    ],
+                    "skills": [],
+                    "posted_at": "None"
+                },
+                {
+                    "title": "Senior Sales Executive",
+                    "url": "https://www.linkedin.com/jobs/view/4369261142",
+                    "is_ai": true,
+                    "categories": [
+                        "Computer Vision",
+                        "NLP"
+                    ],
+                    "skills": [
+                        "spark"
+                    ],
+                    "posted_at": "None"
+                },
+                {
+                    "title": "Senior Director of Supply Chain",
+                    "url": "https://www.linkedin.com/jobs/view/4368788093",
+                    "is_ai": true,
+                    "categories": [
+                        "Computer Vision",
+                        "NLP"
+                    ],
+                    "skills": [],
+                    "posted_at": "None"
+                },
+                {
+                    "title": "Advisor, Brand Marketing",
+                    "url": "https://www.linkedin.com/jobs/view/4369267655",
+                    "is_ai": true,
+                    "categories": [
+                        "NLP"
+                    ],
+                    "skills": [],
+                    "posted_at": "None"
+                },
+                {
+                    "title": "Strategic Sourcing Analyst - Procurement (OpEx)",
+                    "url": "https://www.linkedin.com/jobs/view/4369255817",
+                    "is_ai": false,
+                    "categories": [],
+                    "skills": [],
+                    "posted_at": "None"
+                },
+                {
+                    "title": "Executive Assistant",
+                    "url": "https://www.linkedin.com/jobs/view/4369220519",
+                    "is_ai": true,
+                    "categories": [
+                        "Computer Vision",
+                        "NLP"
+                    ],
+                    "skills": [],
+                    "posted_at": "None"
+                },
+                {
+                    "title": "Senior Manager, Talent & Culture",
+                    "url": "https://www.linkedin.com/jobs/view/4369277487",
+                    "is_ai": true,
+                    "categories": [
+                        "Computer Vision"
+                    ],
+                    "skills": [],
+                    "posted_at": "None"
+                },
+                {
+                    "title": "Quality Engineer",
+                    "url": "https://www.linkedin.com/jobs/view/4369272525",
+                    "is_ai": false,
+                    "categories": [],
+                    "skills": [],
+                    "posted_at": "None"
+                },
+                {
+                    "title": "Events Associate",
+                    "url": "https://www.linkedin.com/jobs/view/4369247871",
+                    "is_ai": true,
+                    "categories": [
+                        "Computer Vision"
+                    ],
+                    "skills": [],
+                    "posted_at": "None"
+                },
+                {
+                    "title": "Construction Manager V",
+                    "url": "https://www.linkedin.com/jobs/view/4369275506",
+                    "is_ai": true,
+                    "categories": [
+                        "Computer Vision"
+                    ],
+                    "skills": [],
+                    "posted_at": "None"
+                },
+                {
+                    "title": "Associate Director of Operations",
+                    "url": "https://www.linkedin.com/jobs/view/4369259781",
+                    "is_ai": true,
+                    "categories": [
+                        "Computer Vision"
+                    ],
+                    "skills": [],
+                    "posted_at": "None"
+                },
+                {
+                    "title": "Campus President/Director",
+                    "url": "https://www.linkedin.com/jobs/view/4369279152",
+                    "is_ai": true,
+                    "categories": [
+                        "Computer Vision",
+                        "NLP"
+                    ],
+                    "skills": [],
+                    "posted_at": "None"
+                },
+                {
+                    "title": "Acquisition Analyst",
+                    "url": "https://www.linkedin.com/jobs/view/4369274149",
+                    "is_ai": false,
+                    "categories": [],
+                    "skills": [],
+                    "posted_at": "None"
+                },
+                {
+                    "title": "Regional Director of Operations",
+                    "url": "https://www.linkedin.com/jobs/view/4369271277",
+                    "is_ai": true,
+                    "categories": [
+                        "NLP"
+                    ],
+                    "skills": [],
+                    "posted_at": "None"
+                },
+                {
+                    "title": "Administrative Director - Institute for Health Equity Resarch",
+                    "url": "https://www.linkedin.com/jobs/view/4369264331",
+                    "is_ai": true,
+                    "categories": [
+                        "Computer Vision",
+                        "NLP"
+                    ],
+                    "skills": [],
+                    "posted_at": "None"
+                },
+                {
+                    "title": "Design Drafter",
+                    "url": "https://www.linkedin.com/jobs/view/4369269923",
+                    "is_ai": true,
+                    "categories": [
+                        "Computer Vision",
+                        "NLP"
+                    ],
+                    "skills": [],
+                    "posted_at": "None"
+                }
+            ],
+            "metrics": {
+                "total_tech_roles": 31,
+                "total_ai_roles": 28,
+                "detected_skills": [
+                    "spark"
+                ]
+            }
+        },
+        "created_at": "2026-02-04 21:50:07.546803"
+    },
+    {
+        "id": "20ff39e6-720c-4498-8e58-0f492029f5b4",
+        "company_id": "5a780160-b1e4-46de-b930-0c0c0d1b3ce7",
+        "category": "digital_presence",
+        "source": "Web Scan",
+        "signal_date": "2026-02-04",
+        "raw_value": "No AI technical markers found at caterpillar.com",
+        "normalized_score": 0.0,
+        "confidence": 0.5,
+        "metadata": {},
+        "created_at": "2026-02-04 21:50:07.548204"
+    },
+    {
+        "id": "a7f10901-f979-4378-bdca-b4d5072750db",
+        "company_id": "5a780160-b1e4-46de-b930-0c0c0d1b3ce7",
+        "category": "leadership_signals",
+        "source": "Search",
+        "signal_date": "2026-02-04",
+        "raw_value": "No public AI leadership changes found",
+        "normalized_score": 0.0,
+        "confidence": 0.5,
+        "metadata": {},
+        "created_at": "2026-02-04 21:50:07.548267"
+    },
+    {
+        "id": "167d0403-e8ee-4cc8-b921-5b599f067dac",
+        "company_id": "0402ce06-869d-49d9-9f01-6a3e42e5a2d8",
+        "category": "technology_hiring",
+        "source": "LinkedIn",
+        "signal_date": "2026-02-04",
+        "raw_value": "10 AI roles found within 21 tech openings",
+        "normalized_score": 33.33,
+        "confidence": 0.85,
+        "metadata": {
+            "job_evidence": [
+                {
+                    "title": "Metallurgist",
+                    "url": "https://www.linkedin.com/jobs/view/4354821013",
+                    "is_ai": true,
+                    "categories": [
+                        "Computer Vision"
+                    ],
+                    "skills": [],
+                    "posted_at": "2026-02-03"
+                },
+                {
+                    "title": "Part-Time Student - Engine Application Engineering - Waterloo, IA",
+                    "url": "https://www.linkedin.com/jobs/view/4368638361",
+                    "is_ai": false,
+                    "categories": [],
+                    "skills": [],
+                    "posted_at": "2026-02-03"
+                },
+                {
+                    "title": "Employee Relations Factory Support Manager",
+                    "url": "https://www.linkedin.com/jobs/view/4328773163",
+                    "is_ai": true,
+                    "categories": [
+                        "Computer Vision"
+                    ],
+                    "skills": [],
+                    "posted_at": "2026-02-03"
+                },
+                {
+                    "title": "Technology Sales Specialist",
+                    "url": "https://www.linkedin.com/jobs/view/4367943017",
+                    "is_ai": true,
+                    "categories": [
+                        "NLP"
+                    ],
+                    "skills": [],
+                    "posted_at": "2026-01-31"
+                },
+                {
+                    "title": "Engineer, Crawler Electrical",
+                    "url": "https://www.linkedin.com/jobs/view/4367923969",
+                    "is_ai": false,
+                    "categories": [],
+                    "skills": [],
+                    "posted_at": "2026-01-31"
+                },
+                {
+                    "title": "Technology Sales Specialist",
+                    "url": "https://www.linkedin.com/jobs/view/4367569569",
+                    "is_ai": true,
+                    "categories": [
+                        "NLP"
+                    ],
+                    "skills": [],
+                    "posted_at": "2026-01-31"
+                },
+                {
+                    "title": "Technology Sales Specialist",
+                    "url": "https://www.linkedin.com/jobs/view/4367585000",
+                    "is_ai": true,
+                    "categories": [
+                        "NLP"
+                    ],
+                    "skills": [],
+                    "posted_at": "2026-01-31"
+                },
+                {
+                    "title": "Technology Sales Specialist",
+                    "url": "https://www.linkedin.com/jobs/view/4367565899",
+                    "is_ai": true,
+                    "categories": [
+                        "NLP"
+                    ],
+                    "skills": [],
+                    "posted_at": "2026-01-31"
+                },
+                {
+                    "title": "Product Engineer",
+                    "url": "https://www.linkedin.com/jobs/view/4367476076",
+                    "is_ai": false,
+                    "categories": [],
+                    "skills": [],
+                    "posted_at": "2026-01-30"
+                },
+                {
+                    "title": "Content Strategy Lead, Construction",
+                    "url": "https://www.linkedin.com/jobs/view/4367459964",
+                    "is_ai": true,
+                    "categories": [
+                        "Computer Vision"
+                    ],
+                    "skills": [],
+                    "posted_at": "2026-01-30"
+                },
+                {
+                    "title": "UX Designer - Parts Supply & Distribution Services",
+                    "url": "https://www.linkedin.com/jobs/view/4367470083",
+                    "is_ai": true,
+                    "categories": [
+                        "Computer Vision"
+                    ],
+                    "skills": [],
+                    "posted_at": "2026-01-30"
+                },
+                {
+                    "title": "Part-Time Student - Software Engineering/Cyber Security - Ames, IA",
+                    "url": "https://www.linkedin.com/jobs/view/4367149872",
+                    "is_ai": false,
+                    "categories": [],
+                    "skills": [
+                        "python"
+                    ],
+                    "posted_at": "2026-01-29"
+                },
+                {
+                    "title": "Senior Software Engineer - Events",
+                    "url": "https://www.linkedin.com/jobs/view/4367168779",
+                    "is_ai": false,
+                    "categories": [],
+                    "skills": [],
+                    "posted_at": "2026-01-29"
+                },
+                {
+                    "title": "Environmental Engineer",
+                    "url": "https://www.linkedin.com/jobs/view/4366764284",
+                    "is_ai": false,
+                    "categories": [],
+                    "skills": [],
+                    "posted_at": "2026-01-28"
+                },
+                {
+                    "title": "Part-Time Student - Electrical Engineer - Dubuque, IA",
+                    "url": "https://www.linkedin.com/jobs/view/4344203025",
+                    "is_ai": true,
+                    "categories": [
+                        "Computer Vision"
+                    ],
+                    "skills": [],
+                    "posted_at": "2026-01-28"
+                },
+                {
+                    "title": "Part-Time Student - Quality Engineering - Waterloo, IA",
+                    "url": "https://www.linkedin.com/jobs/view/4366500167",
+                    "is_ai": false,
+                    "categories": [],
+                    "skills": [],
+                    "posted_at": "2026-01-28"
+                },
+                {
+                    "title": "Manufacturing Engineer",
+                    "url": "https://www.linkedin.com/jobs/view/4369215141",
+                    "is_ai": false,
+                    "categories": [],
+                    "skills": [],
+                    "posted_at": "nan"
+                },
+                {
+                    "title": "Part-Time Student - Mechanical Engineering - Dubuque, IA",
+                    "url": "https://www.linkedin.com/jobs/view/4354798779",
+                    "is_ai": false,
+                    "categories": [],
+                    "skills": [],
+                    "posted_at": "nan"
+                },
+                {
+                    "title": "Part-Time Student - Software Engineering - Ames, IA",
+                    "url": "https://www.linkedin.com/jobs/view/4369215139",
+                    "is_ai": false,
+                    "categories": [],
+                    "skills": [
+                        "python"
+                    ],
+                    "posted_at": "nan"
+                },
+                {
+                    "title": "Product Manager",
+                    "url": "https://www.linkedin.com/jobs/view/4369215142",
+                    "is_ai": true,
+                    "categories": [
+                        "NLP"
+                    ],
+                    "skills": [],
+                    "posted_at": "nan"
+                },
+                {
+                    "title": "Part-Time Student - Industrial Engineering - Dubuque, IA",
+                    "url": "https://www.linkedin.com/jobs/view/4354837203",
+                    "is_ai": false,
+                    "categories": [],
+                    "skills": [],
+                    "posted_at": "nan"
+                }
+            ],
+            "metrics": {
+                "total_tech_roles": 21,
+                "total_ai_roles": 10,
+                "detected_skills": []
+            }
+        },
+        "created_at": "2026-02-04 21:50:45.210413"
+    },
+    {
+        "id": "63694532-a9c4-428a-9c2c-8d74ed2d1520",
+        "company_id": "0402ce06-869d-49d9-9f01-6a3e42e5a2d8",
+        "category": "digital_presence",
+        "source": "Web Scan",
+        "signal_date": "2026-02-04",
+        "raw_value": "No AI technical markers found at deere&company.com",
+        "normalized_score": 0.0,
+        "confidence": 0.5,
+        "metadata": {},
+        "created_at": "2026-02-04 21:50:45.210478"
+    },
+    {
+        "id": "8f2763db-e528-4cd5-96ce-e0c0b1774ba0",
+        "company_id": "0402ce06-869d-49d9-9f01-6a3e42e5a2d8",
+        "category": "leadership_signals",
+        "source": "Search",
+        "signal_date": "2026-02-04",
+        "raw_value": "No public AI leadership changes found",
+        "normalized_score": 0.0,
+        "confidence": 0.5,
+        "metadata": {},
+        "created_at": "2026-02-04 21:50:45.210493"
+    },
+    {
+        "id": "502bd483-ee21-49f3-8038-3024fea0e4ba",
+        "company_id": "3d9b2433-ae91-4826-8ff9-416d105f0334",
+        "category": "technology_hiring",
+        "source": "LinkedIn",
+        "signal_date": "2026-02-04",
+        "raw_value": "8 AI roles found within 9 tech openings",
+        "normalized_score": 77.22,
+        "confidence": 0.85,
+        "metadata": {
+            "job_evidence": [
+                {
+                    "title": "AI/ML Engineer On-site MN",
+                    "url": "https://www.linkedin.com/jobs/view/4368221936",
+                    "is_ai": true,
+                    "categories": [
+                        "Deep Learning",
+                        "Generative AI"
+                    ],
+                    "skills": [
+                        "python",
+                        "pytorch",
+                        "tensorflow",
+                        "huggingface"
+                    ],
+                    "posted_at": "2026-02-03"
+                },
+                {
+                    "title": "Radiologist",
+                    "url": "https://www.linkedin.com/jobs/view/4368005666",
+                    "is_ai": true,
+                    "categories": [
+                        "Computer Vision"
+                    ],
+                    "skills": [],
+                    "posted_at": "2026-02-02"
+                },
+                {
+                    "title": "Segment Information Security Officer - OptumCare - Remote or Hybrid from MN or DC",
+                    "url": "https://www.linkedin.com/jobs/view/4367694552",
+                    "is_ai": true,
+                    "categories": [
+                        "NLP"
+                    ],
+                    "skills": [],
+                    "posted_at": "2026-01-31"
+                },
+                {
+                    "title": "Principal Info Security Engineering - Remote",
+                    "url": "https://www.linkedin.com/jobs/view/4367367368",
+                    "is_ai": false,
+                    "categories": [],
+                    "skills": [],
+                    "posted_at": "2026-01-29"
+                },
+                {
+                    "title": "UnitedHealth Group - Senior Vice President - Policy, Government Affairs",
+                    "url": "https://www.linkedin.com/jobs/view/4366942787",
+                    "is_ai": true,
+                    "categories": [
+                        "NLP"
+                    ],
+                    "skills": [],
+                    "posted_at": "2026-01-28"
+                },
+                {
+                    "title": "Principal Security Program Manager-Remote or Hybrid from MN or DC",
+                    "url": "https://www.linkedin.com/jobs/view/4366937865",
+                    "is_ai": true,
+                    "categories": [
+                        "Computer Vision"
+                    ],
+                    "skills": [],
+                    "posted_at": "2026-01-28"
+                },
+                {
+                    "title": "Senior Treasury Analyst",
+                    "url": "https://www.linkedin.com/jobs/view/4365600463",
+                    "is_ai": true,
+                    "categories": [
+                        "NLP"
+                    ],
+                    "skills": [
+                        "snowflake"
+                    ],
+                    "posted_at": "2026-01-23"
+                },
+                {
+                    "title": "Security Architect, Identity and Access Management - Remote or Hybrid from MN or DC",
+                    "url": "https://www.linkedin.com/jobs/view/4365609073",
+                    "is_ai": true,
+                    "categories": [
+                        "Computer Vision",
+                        "NLP"
+                    ],
+                    "skills": [
+                        "python"
+                    ],
+                    "posted_at": "2026-01-23"
+                },
+                {
+                    "title": "Primary Care Physician",
+                    "url": "https://www.linkedin.com/jobs/view/4368784418",
+                    "is_ai": true,
+                    "categories": [
+                        "Computer Vision",
+                        "NLP"
+                    ],
+                    "skills": [],
+                    "posted_at": "nan"
+                }
+            ],
+            "metrics": {
+                "total_tech_roles": 9,
+                "total_ai_roles": 8,
+                "detected_skills": [
+                    "pytorch",
+                    "tensorflow",
+                    "python",
+                    "huggingface",
+                    "snowflake"
+                ]
+            }
+        },
+        "created_at": "2026-02-04 21:51:14.440818"
+    },
+    {
+        "id": "8cccbaf5-a707-437d-ac97-123e09b80f22",
+        "company_id": "3d9b2433-ae91-4826-8ff9-416d105f0334",
+        "category": "digital_presence",
+        "source": "Web Scan",
+        "signal_date": "2026-02-04",
+        "raw_value": "No AI technical markers found at unitedhealth.com",
+        "normalized_score": 0.0,
+        "confidence": 0.5,
+        "metadata": {},
+        "created_at": "2026-02-04 21:51:14.440863"
+    },
+    {
+        "id": "be3acc2e-025c-4429-8831-e82c383fbb16",
+        "company_id": "3d9b2433-ae91-4826-8ff9-416d105f0334",
+        "category": "leadership_signals",
+        "source": "Search",
+        "signal_date": "2026-02-04",
+        "raw_value": "No public AI leadership changes found",
+        "normalized_score": 0.0,
+        "confidence": 0.5,
+        "metadata": {},
+        "created_at": "2026-02-04 21:51:14.440878"
+    },
+    {
+        "id": "6f0e9b5a-4cdb-43c1-804e-e1683cbdf194",
+        "company_id": "f71df66c-633a-4399-a473-c5152b5b4b15",
+        "category": "technology_hiring",
+        "source": "LinkedIn",
+        "signal_date": "2026-02-04",
+        "raw_value": "No jobs in timeframe",
+        "normalized_score": 0.0,
+        "confidence": 0.5,
+        "metadata": {},
+        "created_at": "2026-02-04 21:51:28.727354"
+    },
+    {
+        "id": "7b04f086-05b5-4ca3-84d0-3ef7e812c8ce",
+        "company_id": "f71df66c-633a-4399-a473-c5152b5b4b15",
+        "category": "digital_presence",
+        "source": "Web Scan",
+        "signal_date": "2026-02-04",
+        "raw_value": "No AI technical markers found at hcahealthcare.com",
+        "normalized_score": 0.0,
+        "confidence": 0.5,
+        "metadata": {},
+        "created_at": "2026-02-04 21:51:28.727498"
+    },
+    {
+        "id": "102ff13d-8562-4447-9c31-7e45a9276730",
+        "company_id": "f71df66c-633a-4399-a473-c5152b5b4b15",
+        "category": "leadership_signals",
+        "source": "Search",
+        "signal_date": "2026-02-04",
+        "raw_value": "No public AI leadership changes found",
+        "normalized_score": 0.0,
+        "confidence": 0.5,
+        "metadata": {},
+        "created_at": "2026-02-04 21:51:28.727511"
+    },
+    {
+        "id": "f86f08c8-4956-4ff9-9cfc-f590b1af0d32",
+        "company_id": "cac31ca8-e0cb-42cc-9941-42268e3c9d6e",
+        "category": "technology_hiring",
+        "source": "LinkedIn",
+        "signal_date": "2026-02-04",
+        "raw_value": "No jobs in timeframe",
+        "normalized_score": 0.0,
+        "confidence": 0.5,
+        "metadata": {},
+        "created_at": "2026-02-04 21:51:39.862046"
+    },
+    {
+        "id": "60d2298f-0403-48fd-9598-97360ae3f5fe",
+        "company_id": "cac31ca8-e0cb-42cc-9941-42268e3c9d6e",
+        "category": "digital_presence",
+        "source": "Web Scan",
+        "signal_date": "2026-02-04",
+        "raw_value": "No AI technical markers found at automaticdataprocessing.com",
+        "normalized_score": 0.0,
+        "confidence": 0.5,
+        "metadata": {},
+        "created_at": "2026-02-04 21:51:39.862132"
+    },
+    {
+        "id": "25a585db-c487-4ea1-a9d5-82425155b41f",
+        "company_id": "cac31ca8-e0cb-42cc-9941-42268e3c9d6e",
+        "category": "leadership_signals",
+        "source": "Search",
+        "signal_date": "2026-02-04",
+        "raw_value": "No public AI leadership changes found",
+        "normalized_score": 0.0,
+        "confidence": 0.5,
+        "metadata": {},
+        "created_at": "2026-02-04 21:51:39.862145"
+    }
+]

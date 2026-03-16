@@ -1,0 +1,184 @@
+2026-02-18 01:49:39,065 - __main__ - INFO - Starting Extended Batch Run (150 Reviews)...
+2026-02-18 01:49:39,331 - __main__ - INFO - Deleting cached file raw/glassdoor/NVDA/2026-02-18.json to ensure fresh fetch of 150 reviews.
+2026-02-18 01:49:39,586 - app.pipelines.glassdoor.glassdoor_orchestrator - INFO - Starting batch run for 5 companies...
+2026-02-18 01:49:43,807 - app.pipelines.glassdoor.glassdoor_orchestrator - INFO - Verified/Created Glassdoor tables in Snowflake.
+2026-02-18 01:49:43,904 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for NVDA (ID: 7633), offset=0
+2026-02-18 01:49:44,321 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=7633&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=0 "HTTP/1.1 200 OK"
+2026-02-18 01:49:44,824 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for NVDA (ID: 7633), offset=10
+2026-02-18 01:49:45,055 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=7633&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=10 "HTTP/1.1 200 OK"
+2026-02-18 01:49:45,557 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for NVDA (ID: 7633), offset=20
+2026-02-18 01:49:45,791 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=7633&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=20 "HTTP/1.1 200 OK"
+2026-02-18 01:49:46,294 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for NVDA (ID: 7633), offset=30
+2026-02-18 01:49:46,539 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=7633&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=30 "HTTP/1.1 200 OK"
+2026-02-18 01:49:47,042 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for NVDA (ID: 7633), offset=40
+2026-02-18 01:49:47,271 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=7633&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=40 "HTTP/1.1 200 OK"
+2026-02-18 01:49:47,773 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for NVDA (ID: 7633), offset=50
+2026-02-18 01:49:48,106 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=7633&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=50 "HTTP/1.1 200 OK"
+2026-02-18 01:49:48,609 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for NVDA (ID: 7633), offset=60
+2026-02-18 01:49:50,565 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=7633&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=60 "HTTP/1.1 200 OK"
+2026-02-18 01:49:51,069 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for NVDA (ID: 7633), offset=70
+2026-02-18 01:49:51,302 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=7633&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=70 "HTTP/1.1 200 OK"
+2026-02-18 01:49:51,805 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for NVDA (ID: 7633), offset=80
+2026-02-18 01:49:52,201 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=7633&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=80 "HTTP/1.1 200 OK"
+2026-02-18 01:49:52,703 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for NVDA (ID: 7633), offset=90
+2026-02-18 01:49:52,959 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=7633&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=90 "HTTP/1.1 200 OK"
+2026-02-18 01:49:53,462 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for NVDA (ID: 7633), offset=100
+2026-02-18 01:49:53,703 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=7633&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=100 "HTTP/1.1 200 OK"
+2026-02-18 01:49:54,206 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for NVDA (ID: 7633), offset=110
+2026-02-18 01:49:55,990 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=7633&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=110 "HTTP/1.1 200 OK"
+2026-02-18 01:49:56,495 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for NVDA (ID: 7633), offset=120
+2026-02-18 01:49:58,228 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=7633&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=120 "HTTP/1.1 200 OK"
+2026-02-18 01:49:58,732 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for NVDA (ID: 7633), offset=130
+2026-02-18 01:49:59,093 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=7633&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=130 "HTTP/1.1 200 OK"
+2026-02-18 01:49:59,595 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for NVDA (ID: 7633), offset=140
+2026-02-18 01:49:59,791 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=7633&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=140 "HTTP/1.1 200 OK"
+2026-02-18 01:50:00,871 - app.pipelines.glassdoor.glassdoor_collector - INFO - Saved 150 raw reviews to S3: raw/glassdoor/NVDA/2026-02-18.json
+2026-02-18 01:52:04,964 - app.pipelines.glassdoor.glassdoor_orchestrator - INFO - Upserted 150 reviews to Snowflake.
+2026-02-18 01:52:04,970 - app.pipelines.glassdoor.glassdoor_orchestrator - INFO - Culture Signal for NVDA: CultureSignal(company_id='7633', ticker='NVDA', batch_date=datetime.date(2026, 2, 18), innovation_score=Decimal('50.29'), data_driven_score=Decimal('0.00'), ai_awareness_score=Decimal('11.05'), change_readiness_score=Decimal('48.59'), overall_sentiment=Decimal('27.57'), review_count=150, avg_rating=Decimal('4.42'), current_employee_ratio=Decimal('0.67'), positive_keywords_found=['growth mindset', 'ai', 'cutting-edge', 'innovative', 'fast-paced', 'ml'], negative_keywords_found=['politics', 'siloed', 'rigid', 'slow'], confidence=Decimal('0.80'))
+2026-02-18 01:52:04,970 - app.pipelines.glassdoor.glassdoor_orchestrator - INFO - Saving culture signal for NVDA to Snowflake...
+2026-02-18 01:52:05,915 - app.pipelines.glassdoor.glassdoor_orchestrator - INFO - Successfully saved culture signal.
+2026-02-18 01:52:06,536 - app.pipelines.glassdoor.glassdoor_orchestrator - INFO - Verified/Created Glassdoor tables in Snowflake.
+2026-02-18 01:52:06,829 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for JPM (ID: 5224839), offset=0
+2026-02-18 01:52:07,184 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=5224839&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=0 "HTTP/1.1 200 OK"
+2026-02-18 01:52:07,698 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for JPM (ID: 5224839), offset=10
+2026-02-18 01:52:07,961 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=5224839&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=10 "HTTP/1.1 200 OK"
+2026-02-18 01:52:08,464 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for JPM (ID: 5224839), offset=20
+2026-02-18 01:52:09,045 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=5224839&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=20 "HTTP/1.1 200 OK"
+2026-02-18 01:52:09,548 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for JPM (ID: 5224839), offset=30
+2026-02-18 01:52:09,829 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=5224839&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=30 "HTTP/1.1 200 OK"
+2026-02-18 01:52:10,332 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for JPM (ID: 5224839), offset=40
+2026-02-18 01:52:10,563 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=5224839&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=40 "HTTP/1.1 200 OK"
+2026-02-18 01:52:11,066 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for JPM (ID: 5224839), offset=50
+2026-02-18 01:52:11,344 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=5224839&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=50 "HTTP/1.1 200 OK"
+2026-02-18 01:52:11,848 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for JPM (ID: 5224839), offset=60
+2026-02-18 01:52:12,121 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=5224839&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=60 "HTTP/1.1 200 OK"
+2026-02-18 01:52:12,626 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for JPM (ID: 5224839), offset=70
+2026-02-18 01:52:12,867 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=5224839&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=70 "HTTP/1.1 200 OK"
+2026-02-18 01:52:13,370 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for JPM (ID: 5224839), offset=80
+2026-02-18 01:52:13,630 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=5224839&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=80 "HTTP/1.1 200 OK"
+2026-02-18 01:52:14,132 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for JPM (ID: 5224839), offset=90
+2026-02-18 01:52:15,768 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=5224839&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=90 "HTTP/1.1 200 OK"
+2026-02-18 01:52:16,271 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for JPM (ID: 5224839), offset=100
+2026-02-18 01:52:16,586 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=5224839&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=100 "HTTP/1.1 200 OK"
+2026-02-18 01:52:17,089 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for JPM (ID: 5224839), offset=110
+2026-02-18 01:52:17,409 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=5224839&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=110 "HTTP/1.1 200 OK"
+2026-02-18 01:52:17,913 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for JPM (ID: 5224839), offset=120
+2026-02-18 01:52:18,227 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=5224839&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=120 "HTTP/1.1 200 OK"
+2026-02-18 01:52:18,731 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for JPM (ID: 5224839), offset=130
+2026-02-18 01:52:19,052 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=5224839&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=130 "HTTP/1.1 200 OK"
+2026-02-18 01:52:19,554 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for JPM (ID: 5224839), offset=140
+2026-02-18 01:52:19,864 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=5224839&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=140 "HTTP/1.1 200 OK"
+2026-02-18 01:52:20,910 - app.pipelines.glassdoor.glassdoor_collector - INFO - Saved 150 raw reviews to S3: raw/glassdoor/JPM/2026-02-18.json
+2026-02-18 01:54:20,153 - app.pipelines.glassdoor.glassdoor_orchestrator - INFO - Upserted 150 reviews to Snowflake.
+2026-02-18 01:54:20,157 - app.pipelines.glassdoor.glassdoor_orchestrator - INFO - Culture Signal for JPM: CultureSignal(company_id='5224839', ticker='JPM', batch_date=datetime.date(2026, 2, 18), innovation_score=Decimal('42.57'), data_driven_score=Decimal('1.30'), ai_awareness_score=Decimal('14.39'), change_readiness_score=Decimal('47.41'), overall_sentiment=Decimal('26.17'), review_count=150, avg_rating=Decimal('3.83'), current_employee_ratio=Decimal('0.65'), positive_keywords_found=['ai', 'metrics', 'innovative', 'ml', 'quantitative'], negative_keywords_found=['politics', 'outdated', 'siloed', 'bureaucratic', 'slow', 'red tape'], confidence=Decimal('0.80'))
+2026-02-18 01:54:20,157 - app.pipelines.glassdoor.glassdoor_orchestrator - INFO - Saving culture signal for JPM to Snowflake...
+2026-02-18 01:54:21,086 - app.pipelines.glassdoor.glassdoor_orchestrator - INFO - Successfully saved culture signal.
+2026-02-18 01:54:21,524 - app.pipelines.glassdoor.glassdoor_orchestrator - INFO - Verified/Created Glassdoor tables in Snowflake.
+2026-02-18 01:54:21,736 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for WMT (ID: 715), offset=0
+2026-02-18 01:54:22,199 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=715&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=0 "HTTP/1.1 200 OK"
+2026-02-18 01:54:22,702 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for WMT (ID: 715), offset=10
+2026-02-18 01:54:23,234 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=715&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=10 "HTTP/1.1 200 OK"
+2026-02-18 01:54:23,738 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for WMT (ID: 715), offset=20
+2026-02-18 01:54:24,078 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=715&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=20 "HTTP/1.1 200 OK"
+2026-02-18 01:54:24,581 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for WMT (ID: 715), offset=30
+2026-02-18 01:54:24,972 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=715&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=30 "HTTP/1.1 200 OK"
+2026-02-18 01:54:25,475 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for WMT (ID: 715), offset=40
+2026-02-18 01:54:27,178 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=715&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=40 "HTTP/1.1 200 OK"
+2026-02-18 01:54:27,682 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for WMT (ID: 715), offset=50
+2026-02-18 01:54:28,071 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=715&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=50 "HTTP/1.1 200 OK"
+2026-02-18 01:54:28,574 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for WMT (ID: 715), offset=60
+2026-02-18 01:54:28,894 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=715&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=60 "HTTP/1.1 200 OK"
+2026-02-18 01:54:29,397 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for WMT (ID: 715), offset=70
+2026-02-18 01:54:29,812 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=715&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=70 "HTTP/1.1 200 OK"
+2026-02-18 01:54:30,316 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for WMT (ID: 715), offset=80
+2026-02-18 01:54:31,345 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=715&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=80 "HTTP/1.1 200 OK"
+2026-02-18 01:54:31,849 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for WMT (ID: 715), offset=90
+2026-02-18 01:54:32,238 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=715&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=90 "HTTP/1.1 200 OK"
+2026-02-18 01:54:32,741 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for WMT (ID: 715), offset=100
+2026-02-18 01:54:33,393 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=715&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=100 "HTTP/1.1 200 OK"
+2026-02-18 01:54:33,896 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for WMT (ID: 715), offset=110
+2026-02-18 01:54:35,686 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=715&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=110 "HTTP/1.1 200 OK"
+2026-02-18 01:54:36,189 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for WMT (ID: 715), offset=120
+2026-02-18 01:54:36,564 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=715&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=120 "HTTP/1.1 200 OK"
+2026-02-18 01:54:37,067 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for WMT (ID: 715), offset=130
+2026-02-18 01:54:37,489 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=715&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=130 "HTTP/1.1 200 OK"
+2026-02-18 01:54:37,992 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for WMT (ID: 715), offset=140
+2026-02-18 01:54:38,412 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=715&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=140 "HTTP/1.1 200 OK"
+2026-02-18 01:54:39,347 - app.pipelines.glassdoor.glassdoor_collector - INFO - Saved 150 raw reviews to S3: raw/glassdoor/WMT/2026-02-18.json
+2026-02-18 01:56:43,505 - app.pipelines.glassdoor.glassdoor_orchestrator - INFO - Upserted 150 reviews to Snowflake.
+2026-02-18 01:56:43,512 - app.pipelines.glassdoor.glassdoor_orchestrator - INFO - Culture Signal for WMT: CultureSignal(company_id='715', ticker='WMT', batch_date=datetime.date(2026, 2, 18), innovation_score=Decimal('50.00'), data_driven_score=Decimal('0.00'), ai_awareness_score=Decimal('21.52'), change_readiness_score=Decimal('49.64'), overall_sentiment=Decimal('30.31'), review_count=150, avg_rating=Decimal('3.53'), current_employee_ratio=Decimal('0.51'), positive_keywords_found=['ai', 'ml'], negative_keywords_found=['slow'], confidence=Decimal('0.80'))
+2026-02-18 01:56:43,512 - app.pipelines.glassdoor.glassdoor_orchestrator - INFO - Saving culture signal for WMT to Snowflake...
+2026-02-18 01:56:44,140 - app.pipelines.glassdoor.glassdoor_orchestrator - INFO - Successfully saved culture signal.
+2026-02-18 01:56:44,474 - app.pipelines.glassdoor.glassdoor_orchestrator - INFO - Verified/Created Glassdoor tables in Snowflake.
+2026-02-18 01:56:44,651 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for GE (ID: 277), offset=0
+2026-02-18 01:56:45,084 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=277&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=0 "HTTP/1.1 200 OK"
+2026-02-18 01:56:45,587 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for GE (ID: 277), offset=10
+2026-02-18 01:56:45,851 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=277&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=10 "HTTP/1.1 200 OK"
+2026-02-18 01:56:46,354 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for GE (ID: 277), offset=20
+2026-02-18 01:56:48,054 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=277&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=20 "HTTP/1.1 200 OK"
+2026-02-18 01:56:48,557 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for GE (ID: 277), offset=30
+2026-02-18 01:56:50,226 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=277&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=30 "HTTP/1.1 200 OK"
+2026-02-18 01:56:50,729 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for GE (ID: 277), offset=40
+2026-02-18 01:56:51,026 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=277&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=40 "HTTP/1.1 200 OK"
+2026-02-18 01:56:51,529 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for GE (ID: 277), offset=50
+2026-02-18 01:56:53,378 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=277&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=50 "HTTP/1.1 200 OK"
+2026-02-18 01:56:53,882 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for GE (ID: 277), offset=60
+2026-02-18 01:56:54,203 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=277&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=60 "HTTP/1.1 200 OK"
+2026-02-18 01:56:54,706 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for GE (ID: 277), offset=70
+2026-02-18 01:56:54,992 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=277&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=70 "HTTP/1.1 200 OK"
+2026-02-18 01:56:55,496 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for GE (ID: 277), offset=80
+2026-02-18 01:56:55,764 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=277&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=80 "HTTP/1.1 200 OK"
+2026-02-18 01:56:56,268 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for GE (ID: 277), offset=90
+2026-02-18 01:56:56,550 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=277&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=90 "HTTP/1.1 200 OK"
+2026-02-18 01:56:57,053 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for GE (ID: 277), offset=100
+2026-02-18 01:56:57,309 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=277&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=100 "HTTP/1.1 200 OK"
+2026-02-18 01:56:57,812 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for GE (ID: 277), offset=110
+2026-02-18 01:56:58,074 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=277&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=110 "HTTP/1.1 200 OK"
+2026-02-18 01:56:58,578 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for GE (ID: 277), offset=120
+2026-02-18 01:56:58,818 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=277&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=120 "HTTP/1.1 200 OK"
+2026-02-18 01:56:59,321 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for GE (ID: 277), offset=130
+2026-02-18 01:56:59,625 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=277&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=130 "HTTP/1.1 200 OK"
+2026-02-18 01:57:00,127 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for GE (ID: 277), offset=140
+2026-02-18 01:57:00,543 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=277&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=140 "HTTP/1.1 200 OK"
+2026-02-18 01:57:01,487 - app.pipelines.glassdoor.glassdoor_collector - INFO - Saved 150 raw reviews to S3: raw/glassdoor/GE/2026-02-18.json
+2026-02-18 01:59:03,839 - app.pipelines.glassdoor.glassdoor_orchestrator - INFO - Upserted 150 reviews to Snowflake.
+2026-02-18 01:59:03,844 - app.pipelines.glassdoor.glassdoor_orchestrator - INFO - Culture Signal for GE: CultureSignal(company_id='277', ticker='GE', batch_date=datetime.date(2026, 2, 18), innovation_score=Decimal('48.45'), data_driven_score=Decimal('0.00'), ai_awareness_score=Decimal('7.54'), change_readiness_score=Decimal('48.27'), overall_sentiment=Decimal('26.08'), review_count=150, avg_rating=Decimal('3.87'), current_employee_ratio=Decimal('0.39'), positive_keywords_found=['ai', 'innovative', 'continuous improvement'], negative_keywords_found=['red tape', 'bureaucratic', 'politics', 'slow'], confidence=Decimal('0.80'))
+2026-02-18 01:59:03,844 - app.pipelines.glassdoor.glassdoor_orchestrator - INFO - Saving culture signal for GE to Snowflake...
+2026-02-18 01:59:04,636 - app.pipelines.glassdoor.glassdoor_orchestrator - INFO - Successfully saved culture signal.
+2026-02-18 01:59:05,118 - app.pipelines.glassdoor.glassdoor_orchestrator - INFO - Verified/Created Glassdoor tables in Snowflake.
+2026-02-18 01:59:05,326 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for DG (ID: 1342), offset=0
+2026-02-18 01:59:05,707 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=1342&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=0 "HTTP/1.1 200 OK"
+2026-02-18 01:59:06,211 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for DG (ID: 1342), offset=10
+2026-02-18 01:59:07,830 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=1342&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=10 "HTTP/1.1 200 OK"
+2026-02-18 01:59:08,333 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for DG (ID: 1342), offset=20
+2026-02-18 01:59:08,550 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=1342&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=20 "HTTP/1.1 200 OK"
+2026-02-18 01:59:09,053 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for DG (ID: 1342), offset=30
+2026-02-18 01:59:09,277 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=1342&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=30 "HTTP/1.1 200 OK"
+2026-02-18 01:59:09,780 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for DG (ID: 1342), offset=40
+2026-02-18 01:59:10,066 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=1342&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=40 "HTTP/1.1 200 OK"
+2026-02-18 01:59:10,569 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for DG (ID: 1342), offset=50
+2026-02-18 01:59:10,823 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=1342&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=50 "HTTP/1.1 200 OK"
+2026-02-18 01:59:11,327 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for DG (ID: 1342), offset=60
+2026-02-18 01:59:11,620 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=1342&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=60 "HTTP/1.1 200 OK"
+2026-02-18 01:59:12,123 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for DG (ID: 1342), offset=70
+2026-02-18 01:59:13,771 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=1342&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=70 "HTTP/1.1 200 OK"
+2026-02-18 01:59:14,274 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for DG (ID: 1342), offset=80
+2026-02-18 01:59:14,526 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=1342&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=80 "HTTP/1.1 200 OK"
+2026-02-18 01:59:15,029 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for DG (ID: 1342), offset=90
+2026-02-18 01:59:15,288 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=1342&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=90 "HTTP/1.1 200 OK"
+2026-02-18 01:59:15,791 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for DG (ID: 1342), offset=100
+2026-02-18 01:59:16,022 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=1342&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=100 "HTTP/1.1 200 OK"
+2026-02-18 01:59:16,524 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for DG (ID: 1342), offset=110
+2026-02-18 01:59:16,844 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=1342&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=110 "HTTP/1.1 200 OK"
+2026-02-18 01:59:17,347 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for DG (ID: 1342), offset=120
+2026-02-18 01:59:18,992 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=1342&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=120 "HTTP/1.1 200 OK"
+2026-02-18 01:59:19,495 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for DG (ID: 1342), offset=130
+2026-02-18 01:59:19,808 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=1342&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=130 "HTTP/1.1 200 OK"
+2026-02-18 01:59:20,312 - app.pipelines.glassdoor.glassdoor_collector - INFO - Fetching Glassdoor reviews for DG (ID: 1342), offset=140
+2026-02-18 01:59:20,629 - httpx - INFO - HTTP Request: GET https://wextractor.com/api/v1/reviews/glassdoor?id=1342&auth_token=8742213366c6296f88fbdf67403cd69271d70de2&limit=150&language=en&offset=140 "HTTP/1.1 200 OK"
+2026-02-18 01:59:21,712 - app.pipelines.glassdoor.glassdoor_collector - INFO - Saved 150 raw reviews to S3: raw/glassdoor/DG/2026-02-18.json
+2026-02-18 02:01:33,966 - app.pipelines.glassdoor.glassdoor_orchestrator - INFO - Upserted 150 reviews to Snowflake.
+2026-02-18 02:01:33,973 - app.pipelines.glassdoor.glassdoor_orchestrator - INFO - Culture Signal for DG: CultureSignal(company_id='1342', ticker='DG', batch_date=datetime.date(2026, 2, 18), innovation_score=Decimal('50.00'), data_driven_score=Decimal('0.00'), ai_awareness_score=Decimal('25.91'), change_readiness_score=Decimal('49.69'), overall_sentiment=Decimal('31.42'), review_count=150, avg_rating=Decimal('2.57'), current_employee_ratio=Decimal('0.30'), positive_keywords_found=['fast-paced', 'ai'], negative_keywords_found=['slow'], confidence=Decimal('0.80'))
+2026-02-18 02:01:33,973 - app.pipelines.glassdoor.glassdoor_orchestrator - INFO - Saving culture signal for DG to Snowflake...
+2026-02-18 02:01:34,756 - app.pipelines.glassdoor.glassdoor_orchestrator - INFO - Successfully saved culture signal.
+2026-02-18 02:01:34,757 - __main__ - INFO - Batch Run Complete.
