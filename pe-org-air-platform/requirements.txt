@@ -37,4 +37,8 @@ apache-airflow-providers-celery>=3.5.0
 apache-airflow-providers-openlineage>=1.8.0
 litellm
 chromadb
-rank-bm25
+rank-bm25mcp
+langgraph
+langchain
+langchain-openai
+prometheus_client
