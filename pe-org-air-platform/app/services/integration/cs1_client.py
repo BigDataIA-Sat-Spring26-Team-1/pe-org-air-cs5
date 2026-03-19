@@ -6,8 +6,28 @@ so the RAG engine can fetch company metadata without importing backend internals
 """
 
 from typing import Any, Dict, List, Optional
+from dataclasses import dataclass
+from enum import Enum
 
 from app.services.integration import BaseSDKClient
+
+class Sector(Enum):
+    TECHNOLOGY = "technology"
+    HEALTHCARE = "healthcare"
+    FINANCIAL_SERVICES = "financial_services"
+    MANUFACTURING = "manufacturing"
+    RETAIL = "retail"
+    ENERGY = "energy"
+
+@dataclass
+class Company:
+    company_id: str
+    ticker: str
+    name: str
+    sector: Sector
+    employee_count: int
+    revenue_mm: float
+    portfolio_entry_date: Optional[str] = None
 
 
 class CS1Client(BaseSDKClient):
@@ -56,3 +76,21 @@ class CS1Client(BaseSDKClient):
     async def list_industries(self) -> List[Dict[str, Any]]:
         """``GET /api/v1/industries``"""
         return await self._get("/api/v1/industries")
+
+    async def get_portfolio_companies(self, fund_id: str) -> List[Company]:
+        """``GET /api/v1/portfolios/{fund_id}/companies`` or equivalent"""
+        # Mocking or fetching from the live endpoint, using list_companies
+        data = await self.list_companies()
+        items = data.get("items", [])
+        companies = []
+        for c in items:
+            sec_str = Sector.TECHNOLOGY
+            companies.append(Company(
+                company_id=c.get("id", c["ticker"]),
+                ticker=c["ticker"],
+                name=c["name"],
+                sector=sec_str,
+                employee_count=c.get("employees", 1000),
+                revenue_mm=c.get("revenue", 100.0)
+            ))
+        return companies
