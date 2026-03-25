@@ -72,5 +72,17 @@ def track_agent(agent_name: str):
         return wrapper
     return decorator
 
-
+def track_cs_client(service: str, endpoint: str):
+    """Decorator to track CS client calls."""
+    def decorator(func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            try:
+                result = await func(*args, **kwargs)
+                CS_CLIENT_CALLS.labels(service=service, endpoint=endpoint, status="success").inc()
+                return result
+            except Exception as e:
+                CS_CLIENT_CALLS.labels(service=service, endpoint=endpoint, status="error").inc()
+                raise
+        return wrapper
     return decorator
