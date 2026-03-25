@@ -35,44 +35,44 @@ class FundMetrics:
 class FundAIRCalculator:
     """Calculates Fund-AI-R using EV-weighted aggregation."""
 
-    # def calculate_fund_metrics(
-    #     self,
-    #     fund_id: str,
-    #     companies: List[PortfolioCompanyView],
-    #     enterprise_values: Dict[str, float],
-    # ) -> FundMetrics:
-    #     if not companies:
-    #         raise ValueError("Cannot calculate Fund-AI-R for empty portfolio")
+    def calculate_fund_metrics(
+        self,
+        fund_id: str,
+        companies: List[PortfolioCompanyView],
+        enterprise_values: Dict[str, float],
+    ) -> FundMetrics:
+        if not companies:
+            raise ValueError("Cannot calculate Fund-AI-R for empty portfolio")
 
-    #     # EV-weighted Org-AI-R
-    #     total_ev = sum(enterprise_values.get(c.company_id, 100.0) for c in companies)
-    #     weighted_sum = sum(enterprise_values.get(c.company_id, 100.0) * c.org_air for c in companies)
-    #     fund_air = weighted_sum / total_ev if total_ev > 0 else 0.0
+        # EV-weighted Org-AI-R
+        total_ev = sum(enterprise_values.get(c.company_id, 100.0) for c in companies)
+        weighted_sum = sum(enterprise_values.get(c.company_id, 100.0) * c.org_air for c in companies)
+        fund_air = weighted_sum / total_ev if total_ev > 0 else 0.0
 
-    #     # Quartile distribution
-    #     quartile_dist = {1: 0, 2: 0, 3: 0, 4: 0}
-    #     for c in companies:
-    #         q = self._get_quartile(c.org_air, c.sector)
-    #         quartile_dist[q] += 1
+        # Quartile distribution
+        quartile_dist = {1: 0, 2: 0, 3: 0, 4: 0}
+        for c in companies:
+            q = self._get_quartile(c.org_air, c.sector)
+            quartile_dist[q] += 1
 
-    #     # Sector HHI
-    #     sector_ev: Dict[str, float] = {}
-    #     for c in companies:
-    #         ev = enterprise_values.get(c.company_id, 100.0)
-    #         sector_ev[c.sector] = sector_ev.get(c.sector, 0.0) + ev
-    #     hhi = sum((ev / total_ev) ** 2 for ev in sector_ev.values()) if total_ev > 0 else 0
+        # Sector HHI
+        sector_ev: Dict[str, float] = {}
+        for c in companies:
+            ev = enterprise_values.get(c.company_id, 100.0)
+            sector_ev[c.sector] = sector_ev.get(c.sector, 0.0) + ev
+        hhi = sum((ev / total_ev) ** 2 for ev in sector_ev.values()) if total_ev > 0 else 0
 
-    #     return FundMetrics(
-    #         fund_id=fund_id,
-    #         fund_air=round(fund_air, 1),
-    #         company_count=len(companies),
-    #         quartile_distribution=quartile_dist,
-    #         sector_hhi=round(hhi, 4),
-    #         avg_delta_since_entry=round(sum(c.delta_since_entry for c in companies) / len(companies), 1),
-    #         total_ev_mm=round(total_ev, 1),
-    #         ai_leaders_count=sum(1 for c in companies if c.org_air >= 70),
-    #         ai_laggards_count=sum(1 for c in companies if c.org_air < 50),
-    #     )
+        return FundMetrics(
+            fund_id=fund_id,
+            fund_air=round(fund_air, 1),
+            company_count=len(companies),
+            quartile_distribution=quartile_dist,
+            sector_hhi=round(hhi, 4),
+            avg_delta_since_entry=round(sum(c.delta_since_entry for c in companies) / len(companies), 1),
+            total_ev_mm=round(total_ev, 1),
+            ai_leaders_count=sum(1 for c in companies if c.org_air >= 70),
+            ai_laggards_count=sum(1 for c in companies if c.org_air < 50),
+        )
 
     def _get_quartile(self, score: float, sector: str) -> int:
         benchmarks = SECTOR_BENCHMARKS.get(sector, SECTOR_BENCHMARKS["technology"])
