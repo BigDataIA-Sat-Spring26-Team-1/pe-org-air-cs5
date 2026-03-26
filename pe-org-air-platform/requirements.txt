@@ -42,3 +42,4 @@ langgraph
 langchain
 langchain-openai
 prometheus_client
+mem0ai

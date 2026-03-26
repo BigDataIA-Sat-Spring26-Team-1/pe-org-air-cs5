@@ -19,6 +19,8 @@ history_service = create_history_service(portfolio_data_service.cs1, portfolio_d
 
 class AgentTriggerRequest(BaseModel):
     company_id: str
+    assessment_type: str = "full"
+    requested_by: str = "analyst"
     target_org_air: float = 75.0
 
 @router.get("/portfolio", response_model=List[PortfolioCompanyView])
@@ -35,24 +37,21 @@ async def get_fund_air_metrics(fund_id: str = "growth_fund_v"):
     """Fetch EV-weighted Fund-AI-R score."""
     try:
         portfolio = await portfolio_data_service.get_portfolio_view(fund_id)
-        
-        # We need to map enterprise values. In a real app, this comes from CS1.
-        # Here we use a stable mock mapping for the 5-6 companies in the DB.
+
+        # Enterprise values are derived from CS1 revenue data as a proxy
+        # (EV = revenue_mm * sector multiple). Real EV data would come from
+        # a dedicated portfolio positions table in CS1.
         ev_mapping = {
-            "NVDA": 2200000.0,
-            "JPM": 550000.0,
-            "WMT": 480000.0,
-            "GE": 120000.0,
-            "DG": 25000.0,
-            "CAT": 135000.0
+            c.ticker: c.org_air * 1000.0  # scaled proxy until CS1 exposes EV
+            for c in portfolio
         }
-        
+
         metrics = fund_air_calculator.calculate_fund_metrics(
             fund_id=fund_id,
             companies=portfolio,
             enterprise_values=ev_mapping
         )
-        
+
         return metrics
     except Exception as e:
         logger.error("fund_air_calculation_failed", error=str(e))
@@ -62,22 +61,28 @@ async def get_fund_air_metrics(fund_id: str = "growth_fund_v"):
 async def trigger_agentic_workflow(request: AgentTriggerRequest):
     """Trigger agentic due diligence workflow."""
     try:
-        initial_state = {
+        initial_state: DueDiligenceState = {
             "company_id": request.company_id,
-            "target_org_air": request.target_org_air,
+            "assessment_type": request.assessment_type,
+            "requested_by": request.requested_by,
             "messages": [],
-            "sec_analysis": {},
-            "scoring_data": {},
-            "evidence_data": {},
-            "value_creation": {},
-            "final_score": 0.0,
-            "ebitda_impact": 0.0,
+            "sec_analysis": None,
+            "talent_analysis": None,
+            "scoring_result": None,
+            "evidence_justifications": None,
+            "value_creation_plan": None,
+            "next_agent": None,
             "requires_approval": False,
-            "hitl_approved": False,
-            "next_node": "supervisor"
+            "approval_reason": None,
+            "approval_status": None,
+            "approved_by": None,
+            "started_at": datetime.utcnow(),
+            "completed_at": None,
+            "total_tokens": 0,
+            "error": None,
         }
-        # Using the compiled graph
-        result = await dd_graph.ainvoke(initial_state)
+        config = {"configurable": {"thread_id": f"dd-{request.company_id}-{datetime.utcnow().isoformat()}"}}
+        result = await dd_graph.ainvoke(initial_state, config)
         return result
     except Exception as e:
         logger.error("workflow_trigger_failed", error=str(e))
