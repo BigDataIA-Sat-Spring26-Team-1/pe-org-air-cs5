@@ -69,7 +69,18 @@ async def list_tools() -> list[Tool]:
                 "type": "object",
                 "properties": {
                     "company_id": {"type": "string"},
-                    "dimension": {"type": "string", "enum": ["talent", "data_infrastructure", "ai_governance"]},
+                    "dimension": {
+                        "type": "string",
+                        "enum": [
+                            "talent",
+                            "data_infrastructure",
+                            "ai_governance",
+                            "use_case_portfolio",
+                            "technology_stack",
+                            "data_culture",
+                            "innovation_velocity",
+                        ],
+                    },
                 },
                 "required": ["company_id", "dimension"],
             },
@@ -235,6 +246,8 @@ async def list_prompts() -> list[Prompt]:
 
 @mcp_server.get_prompt()
 async def get_prompt(name: str, arguments: Dict[str, Any]) -> list[PromptMessage]:
+    company_id = arguments.get("company_id", "<company_id>")
+
     if name == "due_diligence_assessment":
         return [
             PromptMessage(
@@ -242,15 +255,51 @@ async def get_prompt(name: str, arguments: Dict[str, Any]) -> list[PromptMessage
                 content=TextContent(
                     type="text",
                     text=(
-                        f"Perform due diligence for {arguments['company_id']}.\n"
+                        f"Perform due diligence for {company_id}.\n"
                         "1. Calculate Org-AI-R score using calculate_org_air_score\n"
-                        "2. For dimensions below 60, use generate_justification\n"
-                        "3. Run gap_analysis with target_org_air=75\n"
-                        "4. Project EBITDA impact"
+                        "2. For any dimension scoring below 60, call generate_justification "
+                        "to get evidence-backed analysis\n"
+                        "3. Run run_gap_analysis with target_org_air=75\n"
+                        "4. Call project_ebitda_impact with the entry and target scores\n"
+                        "5. Summarise findings: overall readiness level, top 3 gaps, "
+                        "recommended 100-day actions"
                     ),
                 ),
             )
         ]
+
+    if name == "ic_meeting_prep":
+        return [
+            PromptMessage(
+                role="user",
+                content=TextContent(
+                    type="text",
+                    text=(
+                        f"Prepare the Investment Committee package for {company_id}.\n\n"
+                        "Step 1 – Portfolio context\n"
+                        "  Call get_portfolio_summary with the relevant fund_id to locate "
+                        f"{company_id} and establish its Fund-AI-R benchmark.\n\n"
+                        "Step 2 – Org-AI-R deep dive\n"
+                        "  Call calculate_org_air_score for {company_id}.\n"
+                        "  For every dimension below 70, call generate_justification to "
+                        "retrieve rubric criteria, supporting evidence, and identified gaps.\n\n"
+                        "Step 3 – Value creation thesis\n"
+                        "  Call run_gap_analysis with target_org_air=80 to identify the "
+                        "highest-impact improvement levers.\n"
+                        "  Call project_ebitda_impact using the current and target scores.\n\n"
+                        "Step 4 – IC memo structure\n"
+                        "  Produce a structured memo with the following sections:\n"
+                        "  • Executive Summary (2-3 sentences)\n"
+                        "  • Org-AI-R Scorecard (table: dimension, score, level, key gap)\n"
+                        "  • Investment Thesis (how AI readiness drives EBITDA expansion)\n"
+                        "  • Risk Factors (dimensions below 50, governance concerns)\n"
+                        "  • 100-Day Value Creation Plan (top 3 actions with owners)\n"
+                        "  • Recommendation: Proceed / Conditional / Pass"
+                    ),
+                ),
+            )
+        ]
+
     return []
 
 async def main():
