@@ -1,5 +1,5 @@
 """
-LangGraph State Definitions (Lab 10.1)
+LangGraph State Definitions
 Defines the `DueDiligenceState` object that flows between nodes.
 """
 import operator

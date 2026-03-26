@@ -1,110 +1,88 @@
 "use client";
 
-import React, { useState } from 'react';
-import PortfolioDashboard, { PortfolioSummary } from '@/components/PortfolioDashboard';
-
-const mockSummary: PortfolioSummary = {
-    fund_id: "growth_fund_v",
-    fund_name: "Growth Equity Fund V",
-    fund_ai_r: 72.4, // EV-weighted Org-AI-R
-    companies: [
-        {
-            company_id: "nvda-id",
-            ticker: "NVDA",
-            name: "NVIDIA Corporation",
-            sector: "technology",
-            org_air: 85.5,
-            vr_score: 95.0,
-            hr_score: 80.0,
-            synergy_score: 1.25,
-            entry_org_air: 60.0,
-            delta_since_entry: 25.5,
-            evidence_count: 342,
-            ev_mm: 2200000
-        },
-        {
-            company_id: "dg-id",
-            ticker: "DG",
-            name: "Dollar General",
-            sector: "retail",
-            org_air: 37.8,
-            vr_score: 45.0,
-            hr_score: 30.0,
-            synergy_score: 1.05,
-            entry_org_air: 35.0,
-            delta_since_entry: 2.8,
-            evidence_count: 21,
-            ev_mm: 25000
-        },
-        {
-            company_id: "jpm-id",
-            ticker: "JPM",
-            name: "JPMorgan Chase",
-            sector: "financial_services",
-            org_air: 71.2,
-            vr_score: 75.0,
-            hr_score: 65.0,
-            synergy_score: 1.15,
-            entry_org_air: 75.0,
-            delta_since_entry: -3.8,
-            evidence_count: 145,
-            ev_mm: 450000
-        },
-        {
-            company_id: "ge-id",
-            ticker: "GE",
-            name: "General Electric",
-            sector: "manufacturing",
-            org_air: 52.8,
-            vr_score: 60.0,
-            hr_score: 55.0,
-            synergy_score: 1.08,
-            entry_org_air: 40.0,
-            delta_since_entry: 12.8,
-            evidence_count: 85,
-            ev_mm: 120000
-        }
-    ]
-};
+import React, { useState, useEffect } from 'react';
+import PortfolioDashboard, { PortfolioSummary, PortfolioCompany } from '@/components/PortfolioDashboard';
 
 export default function DashboardPage() {
-    const [data, setData] = useState(mockSummary);
-    const [loading, setLoading] = useState(false);
+  const [summary, setSummary] = useState<PortfolioSummary | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-    const handleRefresh = () => {
-        setLoading(true);
-        // Simulate network delay fetching from API or MCP
-        setTimeout(() => setLoading(false), 1000);
-    };
+  const fetchData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      // 1. Fetch Companies with scores via Aakash's PortfolioDataService
+      const portfolioRes = await fetch('/api/v1/agent-ui/portfolio?fund_id=growth_fund_v');
+      if (!portfolioRes.ok) throw new Error("Failed to fetch portfolio data");
+      const companies: PortfolioCompany[] = await portfolioRes.json();
 
-    return (
-        <div className="min-h-screen bg-[#09090b] text-slate-300 p-8 pt-20">
-            <div className="max-w-7xl mx-auto">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-white mb-2">CS5 Portfolio Intelligence</h1>
-                        <p className="text-slate-500 text-sm">Task 9.6 Placeholder. Connects to `PortfolioDataService` via CS1-CS4.</p>
-                    </div>
+      // 2. Fetch Fund-level weighted metrics via Abhinav's FundAIRCalculator
+      const fundRes = await fetch('/api/v1/agent-ui/fund-air?fund_id=growth_fund_v');
+      if (!fundRes.ok) throw new Error("Failed to fetch fund metrics");
+      const fundMetrics = await fundRes.json();
 
-                    <div className="flex items-center gap-3">
-                        <select className="bg-[#12151c] border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5">
-                            <option value="growth_fund_v">Growth Equity Fund V</option>
-                            <option value="buyout_fund_ii">Buyout Fund II</option>
-                        </select>
-                        <button
-                            onClick={handleRefresh}
-                            className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2.5 rounded-lg transition"
-                        >
-                            Sync Live Data
-                        </button>
-                    </div>
-                </div>
+      setSummary({
+        fund_id: fundMetrics.fund_id,
+        fund_name: "Growth Equity Fund V",
+        fund_ai_r: fundMetrics.fund_air,
+        companies: companies.map(c => ({
+            ...c,
+            // Map EV from the backend's knowledge or default
+            ev_mm: c.ticker === 'NVDA' ? 2200000 : c.ticker === 'JPM' ? 550000 : c.ticker === 'WMT' ? 480000 : 100000
+        }))
+      });
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-                <PortfolioDashboard
-                    summary={data}
-                    isLoading={loading}
-                />
-            </div>
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-[#09090b] text-slate-300 p-8 pt-20">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-white mb-2">CS5 Portfolio Intelligence</h1>
+            <p className="text-slate-500 text-sm">
+                Connected to <strong>PortfolioDataService</strong>. 
+                Metrics by <strong>FundAIRCalculator</strong>.
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <select className="bg-[#12151c] border border-slate-700 text-slate-300 text-sm rounded-lg block p-2.5">
+              <option value="growth_fund_v">Growth Equity Fund V</option>
+            </select>
+            <button 
+              onClick={fetchData}
+              disabled={loading}
+              className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-medium px-4 py-2.5 rounded-lg transition"
+            >
+              {loading ? "Syncing..." : "Sync Live Data"}
+            </button>
+          </div>
         </div>
-    );
+
+        {error ? (
+          <div className="bg-red-500/10 border border-red-500/20 p-6 rounded-xl text-red-400">
+            <strong>Error:</strong> {error}
+          </div>
+        ) : summary ? (
+          <PortfolioDashboard 
+            summary={summary} 
+            isLoading={loading}
+          />
+        ) : (
+          <div className="h-64 flex items-center justify-center text-slate-500">Initializing...</div>
+        )}
+      </div>
+    </div>
+  );
 }

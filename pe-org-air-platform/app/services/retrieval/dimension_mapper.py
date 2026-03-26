@@ -1,7 +1,7 @@
 """
-Evidence-to-Dimension Mapper — Teammate B Task 2.
+Evidence-to-Dimension Mapper.
 
-Codifies the CS3 Task 5.0a Signal-to-Dimension mapping matrix so that
+Codifies the Signal-to-Dimension mapping matrix so that
 every piece of evidence retrieved by the RAG engine is tagged with the
 correct OrgAIR scoring dimension (e.g. a "Job Post" for an AI role
 should justify the "TALENT" dimension, not "TECHNOLOGY_STACK").

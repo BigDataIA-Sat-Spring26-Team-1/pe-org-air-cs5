@@ -1,8 +1,5 @@
 """
-Unified Portfolio Data Service - Integrates CS1, CS2, CS3, CS4.
-
-This is the ONLY way to get data for agents and dashboards.
-ALL data comes from YOUR CS1-CS4 implementations.
+Unified Portfolio Data Service.
 """
 from typing import List, Dict, Optional
 from dataclasses import dataclass
@@ -55,7 +52,7 @@ class PortfolioDataService:
         fund_id: str,
     ) -> List[PortfolioCompanyView]:
         """Load portfolio from CS1, scores from CS3, evidence from CS2."""
-        # Call YOUR CS1 API
+        # Fetch company profile from metadata service
         companies = await self.cs1.get_portfolio_companies(fund_id)
 
         views = []
@@ -84,7 +81,7 @@ class PortfolioDataService:
                 if ci_list and len(ci_list) >= 2:
                     ci = (ci_list[0], ci_list[1])
                     
-            # Call YOUR CS2 API
+            # Fetch specific evidence details
             evidence = await self.cs2.get_evidence(ticker=company.ticker)
 
             entry_score = await self._get_entry_score(company.company_id)

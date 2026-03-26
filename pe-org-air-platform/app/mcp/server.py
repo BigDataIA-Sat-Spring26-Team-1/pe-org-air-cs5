@@ -1,5 +1,5 @@
 """
-MCP Server Core (Lab 9.2) - Exposing CS1-CS4 API tools.
+MCP Server Core - Exposing CS1-CS4 API tools.
 """
 import asyncio
 import json

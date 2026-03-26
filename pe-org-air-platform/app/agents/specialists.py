@@ -1,5 +1,5 @@
 """
-Specialist Agents (Lab 10.2) - Domain-specific agents for the due diligence workflow.
+Specialist Agents - Domain-specific agents for the due diligence workflow.
 """
 from typing import Dict, Any
 from datetime import datetime

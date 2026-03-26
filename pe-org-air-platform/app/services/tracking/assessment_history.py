@@ -43,11 +43,6 @@ class AssessmentTrend:
 class AssessmentHistoryService:
     """
     Tracks assessment history using CS1 for storage, CS3 for calculations.
-
-    Students must implement:
-    1. record_assessment() — Store new assessment snapshot
-    2. get_history() — Retrieve snapshots for a company
-    3. calculate_trend() — Compute trend metrics
     """
 
     def __init__(self, cs1_client: CS1Client, cs3_client: CS3Client):
@@ -70,7 +65,7 @@ class AssessmentHistoryService:
         3. Store in history (via CS1/Snowflake)
         4. Return snapshot
         """
-        # Get current assessment from YOUR CS3
+        # Get current assessment from scoring client
         assessment = await self.cs3.list_assessments(company_id=company_id)
         items = assessment.get("items", [])
 

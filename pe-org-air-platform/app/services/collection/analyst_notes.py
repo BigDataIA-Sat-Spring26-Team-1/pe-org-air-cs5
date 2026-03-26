@@ -1,5 +1,5 @@
 """
-Analyst Notes Collector — Teammate B Task 3.
+Analyst Notes Collector.
 
 Ingestion service for **manual** due-diligence data:
   * Interview transcripts

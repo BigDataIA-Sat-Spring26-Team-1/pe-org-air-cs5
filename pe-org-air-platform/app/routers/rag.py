@@ -59,7 +59,7 @@ async def ingest_company(ticker: str = Query(..., min_length=1, description="Tic
     if not evidence_list:
         raise HTTPException(status_code=404, detail=f"No real evidence found in Snowflake for {ticker}")
     
-    # Task 8.1 Hybrid Parity: Update the sparse index (BM25) immediately
+    # Update the sparse index (BM25) immediately
     # We must format the evidence correctly for the retriever
     retriever_formatted = []
     for e in evidence_list:
@@ -155,7 +155,7 @@ async def rag_health():
 
 
 # ---------------------------------------------------------------------------
-# Analyst Notes endpoints  (Teammate B — Task 3)
+# Analyst Notes endpoints
 # ---------------------------------------------------------------------------
 
 class NotesIngestRequest(BaseModel):

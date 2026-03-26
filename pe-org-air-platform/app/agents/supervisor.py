@@ -1,5 +1,5 @@
 """
-Supervisor Agent (Lab 10.3) - LangGraph orchestration for the due diligence workflow.
+Supervisor Agent - LangGraph orchestration for the due diligence workflow.
 """
 from typing import Literal, Dict, Any
 from datetime import datetime

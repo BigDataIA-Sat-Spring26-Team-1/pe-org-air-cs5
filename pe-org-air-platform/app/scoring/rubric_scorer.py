@@ -42,7 +42,7 @@ class RubricResult:
     rationale: str
 
 
-# Rubric definitions from Lab 5 PDF
+# Standard rubric definitions
 DIMENSION_RUBRICS: Dict[str, Dict[ScoreLevel, RubricCriteria]] = {
     "talent": {
         ScoreLevel.LEVEL_5: RubricCriteria(
