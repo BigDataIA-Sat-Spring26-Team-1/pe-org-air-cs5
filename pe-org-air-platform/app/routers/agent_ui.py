@@ -206,7 +206,7 @@ async def get_mcp_tools():
             },
             {
                 "name": "generate_justification",
-                "description": "Generate a CS4 RAG-backed justification for a given dimension.",
+                "description": "Generate a CS4 RAG-backed justification for a single dimension.",
                 "parameters": [
                     {"name": "company_id", "type": "string", "required": True, "description": "Company ticker or UUID"},
                     {
@@ -214,7 +214,21 @@ async def get_mcp_tools():
                         "type": "enum",
                         "required": True,
                         "description": "AI readiness dimension to justify",
-                        "values": ["talent", "data_infrastructure", "ai_governance", "use_case_portfolio", "technology_stack", "data_culture", "innovation_velocity"],
+                        "values": ["talent", "data_infrastructure", "ai_governance", "use_case_portfolio", "technology_stack", "culture", "leadership"],
+                    },
+                ],
+            },
+            {
+                "name": "batch_generate_justifications",
+                "description": "Generate CS4 RAG justifications for multiple dimensions in parallel (faster than calling generate_justification repeatedly).",
+                "parameters": [
+                    {"name": "company_id", "type": "string", "required": True, "description": "Company ticker or UUID"},
+                    {
+                        "name": "dimensions",
+                        "type": "array",
+                        "required": False,
+                        "description": "Dimensions to justify. Omit to fetch all 7.",
+                        "values": ["talent", "data_infrastructure", "ai_governance", "use_case_portfolio", "technology_stack", "culture", "leadership"],
                     },
                 ],
             },

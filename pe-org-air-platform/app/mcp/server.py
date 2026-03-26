@@ -103,7 +103,7 @@ async def list_tools() -> list[Tool]:
         ),
         Tool(
             name="generate_justification",
-            description="Generate a CS4 justification via RAG for a given dimension.",
+            description="Generate a CS4 justification via RAG for a single dimension.",
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -116,12 +116,43 @@ async def list_tools() -> list[Tool]:
                             "ai_governance",
                             "use_case_portfolio",
                             "technology_stack",
-                            "data_culture",
-                            "innovation_velocity",
+                            "culture",
+                            "leadership",
                         ],
                     },
                 },
                 "required": ["company_id", "dimension"],
+            },
+        ),
+        Tool(
+            name="batch_generate_justifications",
+            description=(
+                "Generate CS4 RAG justifications for multiple dimensions in parallel. "
+                "Use this instead of calling generate_justification repeatedly — "
+                "all dimensions are fetched concurrently and returned together."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "company_id": {"type": "string"},
+                    "dimensions": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "talent",
+                                "data_infrastructure",
+                                "ai_governance",
+                                "use_case_portfolio",
+                                "technology_stack",
+                                "culture",
+                                "leadership",
+                            ],
+                        },
+                        "description": "List of dimensions to justify. Omit to fetch all 7.",
+                    },
+                },
+                "required": ["company_id"],
             },
         ),
         Tool(
@@ -209,6 +240,26 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
                 "rubric": res.rubric_criteria,
             }, indent=2))]
 
+        elif name == "batch_generate_justifications":
+            company_id = arguments["company_id"]
+            ticker = await _resolve_ticker(company_id)
+            from app.models.rag import Dimension
+            all_dims = ["talent", "data_infrastructure", "ai_governance",
+                        "use_case_portfolio", "technology_stack", "culture", "leadership"]
+            dims_to_run = arguments.get("dimensions") or all_dims
+
+            async def _justify(dim_str: str):
+                try:
+                    dim = Dimension(dim_str)
+                    res = await portfolio_data_service.cs4.generate_justification(ticker, dim)
+                    return dim_str, {"score": res.score, "level": res.level_name,
+                                     "strength": res.evidence_strength, "rubric": res.rubric_criteria}
+                except Exception as e:
+                    return dim_str, {"error": str(e)}
+
+            results = await asyncio.gather(*[_justify(d) for d in dims_to_run])
+            return [TextContent(type="text", text=json.dumps(dict(results), indent=2))]
+
         elif name == "project_ebitda_impact":
             proj = ebitda_calculator.project(
                 arguments["company_id"],
@@ -247,11 +298,10 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
                         # Governance: ai_governance
                         current_scores = {
                             "talent": round(hr_score * 0.95, 1),
-                            "data_culture": round(hr_score * 0.85, 1),
+                            "culture": round(hr_score * 0.85, 1),
                             "use_case_portfolio": round(vr_score * 0.95, 1),
                             "data_infrastructure": round((org_air + vr_score) / 2 * 0.88, 1),
                             "technology_stack": round(org_air * 0.92, 1),
-                            "innovation_velocity": round(org_air * 0.82, 1),
                             "ai_governance": round(org_air * 0.78, 1),
                             "leadership": round(org_air * 0.75, 1),
                         }

@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Plug, Copy, Check, ChevronDown, ChevronUp, Zap, BookOpen, Database, Activity } from "lucide-react";
+import { Plug, Copy, Check, ChevronDown, ChevronUp, Zap, BookOpen, Database, FlaskConical } from "lucide-react";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
 const MCP_URL = typeof window !== "undefined"
@@ -41,13 +41,36 @@ interface MCPData {
   resources: Resource[];
 }
 
-type Tab = "connection" | "tools" | "prompts" | "resources";
+type Tab = "connection" | "tools" | "prompts" | "resources" | "test-prompts";
+
+const TEST_PROMPTS: { label: string; category: string; prompt: string }[] = [
+  // Basic tool verification
+  { category: "Tool Verification", label: "Portfolio Summary", prompt: "Get me a summary of all companies in fund growth_fund_v" },
+  { category: "Tool Verification", label: "Single Score", prompt: "What is the Org-AI-R score for NVDA? Show me the full breakdown." },
+  { category: "Tool Verification", label: "Evidence Signals", prompt: "Fetch the evidence signals for DG (Dollar General) from CS2" },
+  { category: "Tool Verification", label: "Single Justification", prompt: "Generate a justification for NVDA's ai_governance dimension" },
+  { category: "Tool Verification", label: "Batch Justifications", prompt: "Use batch_generate_justifications to get all dimension scores for DG at once, then summarise the weakest areas" },
+  { category: "Tool Verification", label: "Gap Analysis", prompt: "Run a gap analysis for DG with a target Org-AI-R of 75" },
+  { category: "Tool Verification", label: "EBITDA Projection", prompt: "Project EBITDA impact for DG: entry score 38, target score 75, HR score 65" },
+  // Due diligence workflows
+  { category: "Due Diligence", label: "Full DD — Low Score", prompt: "Run a complete due diligence assessment for DG. Use batch_generate_justifications to get all dimensions in one call, then run gap analysis with target 75, and project EBITDA impact." },
+  { category: "Due Diligence", label: "Full DD — High Score", prompt: "Run a complete due diligence assessment for NVDA. Focus on identifying any remaining gaps even at its high score level." },
+  { category: "Due Diligence", label: "IC Meeting Prep", prompt: "Prepare a full Investment Committee package for DG. Include: Org-AI-R scorecard, gap analysis to target 80, EBITDA projection, risk factors, and a Proceed/Conditional/Pass recommendation." },
+  // Comparative analysis
+  { category: "Comparative", label: "Head-to-Head", prompt: "Compare DG and JPM for AI readiness. For each: get Org-AI-R score, run gap analysis to target 75, and project EBITDA. Which is the better investment opportunity and why?" },
+  { category: "Comparative", label: "Portfolio Ranking", prompt: "Get the portfolio summary for growth_fund_v and rank all companies by Org-AI-R score. For the bottom 2, run gap analysis with target 70." },
+  { category: "Comparative", label: "Sector Benchmarking", prompt: "Get the portfolio summary, then use the Org-AI-R Scoring Parameters v2.0 resource to explain how each company's score is weighted by sector." },
+  // Strategic
+  { category: "Strategic", label: "100-Day Plan", prompt: "For DG, run a gap analysis targeting 75, then design a realistic 100-day AI readiness improvement plan with specific owners and milestones for the top 3 gaps." },
+  { category: "Strategic", label: "Governance Deep-Dive", prompt: "NVDA's weakest dimension is AI governance at 51.6. Generate a justification for that dimension, then recommend 3 specific governance improvements a PE firm could drive post-acquisition." },
+];
 
 export default function MCPPage() {
   const [activeTab, setActiveTab] = useState<Tab>("connection");
   const [data, setData] = useState<MCPData | null>(null);
   const [mcpHealth, setMcpHealth] = useState<"checking" | "ok" | "error">("checking");
   const [copied, setCopied] = useState(false);
+  const [copiedPrompt, setCopiedPrompt] = useState<string | null>(null);
   const [expandedTool, setExpandedTool] = useState<string | null>(null);
   const [expandedPrompt, setExpandedPrompt] = useState<string | null>(null);
 
@@ -67,7 +90,8 @@ export default function MCPPage() {
     {
       mcpServers: {
         "pe-orgair": {
-          url: "http://localhost:3001/sse",
+          command: "npx",
+          args: ["-y", "mcp-remote", "http://localhost:3001/sse"],
         },
       },
     },
@@ -82,11 +106,19 @@ export default function MCPPage() {
     });
   };
 
+  const copyPrompt = (prompt: string) => {
+    navigator.clipboard.writeText(prompt).then(() => {
+      setCopiedPrompt(prompt);
+      setTimeout(() => setCopiedPrompt(null), 2000);
+    });
+  };
+
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
     { id: "connection", label: "Connection", icon: <Plug size={16} /> },
-    { id: "tools", label: `Tools (${data?.tools.length ?? 6})`, icon: <Zap size={16} /> },
+    { id: "tools", label: `Tools (${data?.tools.length ?? 7})`, icon: <Zap size={16} /> },
     { id: "prompts", label: `Prompts (${data?.prompts.length ?? 2})`, icon: <BookOpen size={16} /> },
     { id: "resources", label: `Resources (${data?.resources.length ?? 2})`, icon: <Database size={16} /> },
+    { id: "test-prompts", label: `Test Prompts (${TEST_PROMPTS.length})`, icon: <FlaskConical size={16} /> },
   ];
 
   return (
@@ -152,6 +184,7 @@ export default function MCPPage() {
               <div>
                 <h2 className="text-lg font-semibold text-slate-100">Claude Desktop Config</h2>
                 <p className="text-slate-400 text-sm">Add this to your <code className="text-violet-400">claude_desktop_config.json</code></p>
+                <p className="text-xs text-amber-400/80 mt-1">Uses <code className="text-amber-300">mcp-remote</code> as a stdio→SSE bridge. Requires Node.js.</p>
               </div>
               <button
                 onClick={copyConfig}
@@ -173,9 +206,10 @@ export default function MCPPage() {
                 "Ensure Docker Compose is running: docker compose -f docker/docker-compose.yml up -d",
                 "Verify MCP server health: curl http://localhost:3001/health",
                 "Open Claude Desktop → Settings → Developer → Edit Config",
-                "Paste the config JSON shown above into claude_desktop_config.json",
-                "Restart Claude Desktop — the pe-orgair MCP server will appear in your tools list",
-                "Use the Prompts tab to copy ready-made workflow prompts into Claude Desktop",
+                "Paste the config JSON above into claude_desktop_config.json (uses npx mcp-remote as a bridge)",
+                "Quit and reopen Claude Desktop — pe-orgair connector appears under Connectors",
+                "Open a new chat and click the + icon to see prompts, resources, and tools",
+                "Use the Test Prompts tab to copy ready-made prompts directly into Claude Desktop",
               ].map((step, i) => (
                 <li key={i} className="flex gap-3">
                   <div className="w-6 h-6 bg-violet-600/20 rounded-full flex items-center justify-center text-violet-400 text-xs font-bold shrink-0 mt-0.5">
@@ -296,6 +330,44 @@ export default function MCPPage() {
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* TEST PROMPTS TAB */}
+      {activeTab === "test-prompts" && (
+        <div className="space-y-6">
+          <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex items-start gap-3">
+            <FlaskConical size={16} className="text-violet-400 shrink-0 mt-0.5" />
+            <p className="text-slate-400 text-sm">
+              Copy any prompt below and paste it into Claude Desktop. Make sure the pe-orgair connector is enabled first.
+              Prompts that use <code className="text-violet-300">batch_generate_justifications</code> run all dimension queries in parallel — significantly faster than sequential calls.
+            </p>
+          </div>
+          {(["Tool Verification", "Due Diligence", "Comparative", "Strategic"] as const).map((category) => {
+            const categoryPrompts = TEST_PROMPTS.filter((p) => p.category === category);
+            return (
+              <div key={category}>
+                <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">{category}</h3>
+                <div className="space-y-2">
+                  {categoryPrompts.map((p) => (
+                    <div key={p.label} className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <div className="text-sm font-medium text-slate-200 mb-1">{p.label}</div>
+                        <div className="text-sm text-slate-400 leading-relaxed">{p.prompt}</div>
+                      </div>
+                      <button
+                        onClick={() => copyPrompt(p.prompt)}
+                        className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-medium text-slate-300 transition-colors"
+                      >
+                        {copiedPrompt === p.prompt ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                        {copiedPrompt === p.prompt ? "Copied!" : "Copy"}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
 
