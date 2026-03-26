@@ -18,7 +18,8 @@ x-airflow-common:
     REDIS_HOST: redis
     REDIS_PORT: 6379
     # RAG Configuration (Case Study 4)
-    OPENAI_API_KEY: ${OPENAI_API_KEY}
+    # OPENAI_API_KEY is supplied via env_file (../.env) — do NOT override here
+    # as an empty ${OPENAI_API_KEY} from the host shell would blank the container value
     CHROMA_PERSIST_DIR: /opt/airflow/app_code/data/chroma
     # Add PYTHONPATH to include app modules
     PYTHONPATH: "/opt/airflow:/opt/airflow/app:/app"

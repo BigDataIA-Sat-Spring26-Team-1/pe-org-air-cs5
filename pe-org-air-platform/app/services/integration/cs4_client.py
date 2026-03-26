@@ -25,14 +25,17 @@ class CS4Client(BaseSDKClient):
         dim_str = dimension.value if hasattr(dimension, 'value') else str(dimension)
         found = justifications.get(dim_str, {})
         
-        # Simple instantiation logic for testing
         return ScoreJustification(
+            company_id=company_id,
             dimension=dimension,
-            score=found.get("score", 70.0),
-            level=found.get("level", 3),
-            level_name=found.get("level_name", "Adequate"),
-            evidence_strength=found.get("evidence_strength", "moderate"),
-            rubric_criteria=found.get("rubric_criteria", "Standard criteria hit"),
+            score=found.get("score", 0.0),
+            level=found.get("level", 1),
+            level_name=found.get("level_name", "Nascent"),
+            confidence_interval=tuple(found.get("confidence_interval", [0.0, 100.0])[:2]),
+            rubric_criteria=found.get("rubric_criteria", ""),
+            rubric_keywords=found.get("rubric_keywords", []),
             supporting_evidence=found.get("supporting_evidence", []),
-            gaps_identified=found.get("gaps_identified", [])
+            gaps_identified=found.get("gaps_identified", []),
+            generated_summary=found.get("generated_summary", ""),
+            evidence_strength=found.get("evidence_strength", "moderate"),
         )

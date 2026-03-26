@@ -130,7 +130,7 @@ class ScoringAgent:
 
         score_result = await get_org_air_score.ainvoke({"company_id": company_id})
         score_data = json.loads(score_result)
-        org_air = score_data["org_air"]
+        org_air = score_data.get("org_air", 0.0)
         requires_approval = org_air > 85 or org_air < 40
         approval_reason = f"Score {org_air:.1f} outside normal range [40, 85]" if requires_approval else None
 

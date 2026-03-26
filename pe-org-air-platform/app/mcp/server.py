@@ -43,6 +43,22 @@ from app.services.value_creation.gap_analysis import gap_analyzer
 logger = structlog.get_logger()
 mcp_server = Server("pe-orgair-cs5-server")
 
+_uuid_to_ticker_cache: Dict[str, str] = {}
+
+async def _resolve_ticker(company_id: str) -> str:
+    """Convert a company UUID to its ticker. Returns company_id unchanged if it already looks like a ticker."""
+    if len(company_id) != 36 or "-" not in company_id:
+        return company_id
+    if company_id in _uuid_to_ticker_cache:
+        return _uuid_to_ticker_cache[company_id]
+    try:
+        views = await portfolio_data_service.get_portfolio_view("growth_fund_v")
+        for v in views:
+            _uuid_to_ticker_cache[v.company_id] = v.ticker
+        return _uuid_to_ticker_cache.get(company_id, company_id)
+    except Exception:
+        return company_id
+
 
 # ---------------------------------------------------------------------------
 # Tool definitions
@@ -173,7 +189,8 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
 
         elif name == "get_company_evidence":
             company_id = arguments["company_id"]
-            evidence = await portfolio_data_service.cs2.get_evidence(ticker=company_id)
+            ticker = await _resolve_ticker(company_id)
+            evidence = await portfolio_data_service.cs2.get_evidence(ticker=ticker)
             return [TextContent(type="text", text=json.dumps({
                 "count": len(evidence),
                 "items": evidence[:5],  # cap to avoid blowing out LLM context
@@ -181,9 +198,10 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
 
         elif name == "generate_justification":
             company_id = arguments["company_id"]
+            ticker = await _resolve_ticker(company_id)
             from app.models.rag import Dimension
             dim = Dimension(arguments["dimension"])
-            res = await portfolio_data_service.cs4.generate_justification(company_id, dim)
+            res = await portfolio_data_service.cs4.generate_justification(ticker, dim)
             return [TextContent(type="text", text=json.dumps({
                 "score": res.score,
                 "level": res.level_name,

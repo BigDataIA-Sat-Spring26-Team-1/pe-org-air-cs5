@@ -10,6 +10,7 @@ from docx.shared import Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 from exercises.agentic_due_diligence import run_due_diligence
+from app.services.integration.portfolio_data_service import portfolio_data_service
 
 
 def _fmt_dt(value) -> str:
@@ -31,12 +32,25 @@ def _fmt_score(value, decimals: int = 1) -> str:
 
 
 async def generate_ic_memo(company_id: str, assessment_type: str = "full") -> str:
+    # Look up company name and ticker for display
+    company_name = company_id
+    company_ticker = company_id
+    try:
+        views = await portfolio_data_service.get_portfolio_view("growth_fund_v")
+        for v in views:
+            if v.company_id == company_id:
+                company_name = v.name
+                company_ticker = v.ticker
+                break
+    except Exception:
+        pass
+
     result = await run_due_diligence(company_id, assessment_type)
 
     doc = Document()
 
     # ── Title ──────────────────────────────────────────────────────────────────
-    title = doc.add_heading(f"Investment Committee Memo — {company_id}", level=0)
+    title = doc.add_heading(f"Investment Committee Memo — {company_name} ({company_ticker})", level=0)
     title.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     # ── Assessment metadata ────────────────────────────────────────────────────
@@ -105,16 +119,33 @@ async def generate_ic_memo(company_id: str, assessment_type: str = "full") -> st
     vc_plan = result.get("value_creation_plan") or {}
     gap_data = vc_plan.get("gap_analysis") or {}
     if gap_data:
-        for key, value in gap_data.items():
-            p = doc.add_paragraph(style="List Bullet")
-            run = p.add_run(f"{key.replace('_', ' ').title()}: ")
-            run.bold = True
-            p.add_run(str(value))
+        scalar_keys = ["target_org_air", "gap_count", "top_priority", "estimated_investment", "projected_ebitda_pct"]
+        for key in scalar_keys:
+            if key in gap_data:
+                p = doc.add_paragraph(style="List Bullet")
+                p.add_run(f"{key.replace('_', ' ').title()}: ").bold = True
+                p.add_run(str(gap_data[key]))
+        gaps = gap_data.get("gaps") or []
+        if gaps:
+            doc.add_heading("Gap Analysis by Dimension", level=2)
+            for gap in gaps:
+                if isinstance(gap, dict):
+                    dim = gap.get("dimension", "").replace("_", " ").title()
+                    p = doc.add_paragraph(style="List Bullet")
+                    p.add_run(f"{dim}: ").bold = True
+                    p.add_run(
+                        f"Current {gap.get('current_score', 'N/A')} → Target {gap.get('target_score', 'N/A')} "
+                        f"| Gap: {gap.get('gap', 'N/A')} pts | Priority: {gap.get('priority', 'N/A')}"
+                    )
+                    initiatives = gap.get("initiatives") or []
+                    if initiatives:
+                        for init in initiatives[:3]:
+                            doc.add_paragraph(f"   • {init}")
     else:
         doc.add_paragraph("No value creation plan available.")
 
     # ── Save ───────────────────────────────────────────────────────────────────
-    output_path = f"ic_memo_{company_id}.docx"
+    output_path = f"ic_memo_{company_ticker}.docx"
     doc.save(output_path)
     return output_path
 

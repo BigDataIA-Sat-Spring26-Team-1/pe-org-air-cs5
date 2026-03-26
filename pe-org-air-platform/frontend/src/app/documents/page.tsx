@@ -46,7 +46,7 @@ export default function DocumentsPage() {
     useEffect(() => {
         fetch(`${API_BASE}/api/v1/agent-ui/portfolio`)
             .then((r) => r.json())
-            .then((data) => setCompanies(Array.isArray(data) ? data : []))
+            .then((data) => setCompanies(Array.isArray(data) ? data.filter((c: Company) => c.org_air > 0) : []))
             .catch(() => setCompanies([]))
             .finally(() => setLoading(false));
     }, []);
