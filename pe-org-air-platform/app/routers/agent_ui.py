@@ -137,3 +137,115 @@ async def generate_lp_letter_endpoint(company_id: str, assessment_type: str = "f
     except Exception as e:
         logger.error("lp_letter_generation_failed", company_id=company_id, error=str(e))
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/mcp-tools")
+async def get_mcp_tools():
+    """Return the list of MCP tools, prompts, and resources exposed by the MCP server."""
+    return {
+        "tools": [
+            {
+                "name": "get_portfolio_summary",
+                "description": "Fetch all portfolio companies with scores from CS1-CS3.",
+                "parameters": [
+                    {"name": "fund_id", "type": "string", "required": True, "description": "Fund identifier (e.g. growth_fund_v)"},
+                ],
+            },
+            {
+                "name": "calculate_org_air_score",
+                "description": "Calculate Org-AI-R score for a company using CS3 scoring engine.",
+                "parameters": [
+                    {"name": "company_id", "type": "string", "required": True, "description": "Company ticker or ID (e.g. NVDA)"},
+                ],
+            },
+            {
+                "name": "get_company_evidence",
+                "description": "Fetch granular evidence signals (patents, SEC, etc.) from CS2.",
+                "parameters": [
+                    {"name": "company_id", "type": "string", "required": True, "description": "Company ticker or UUID"},
+                ],
+            },
+            {
+                "name": "generate_justification",
+                "description": "Generate a CS4 RAG-backed justification for a given dimension.",
+                "parameters": [
+                    {"name": "company_id", "type": "string", "required": True, "description": "Company ticker or UUID"},
+                    {
+                        "name": "dimension",
+                        "type": "enum",
+                        "required": True,
+                        "description": "AI readiness dimension to justify",
+                        "values": ["talent", "data_infrastructure", "ai_governance", "use_case_portfolio", "technology_stack", "data_culture", "innovation_velocity"],
+                    },
+                ],
+            },
+            {
+                "name": "project_ebitda_impact",
+                "description": "Project financial metrics impact based on CS3 scores.",
+                "parameters": [
+                    {"name": "company_id", "type": "string", "required": True, "description": "Company ticker or UUID"},
+                    {"name": "entry_score", "type": "number", "required": True, "description": "Org-AI-R score at investment entry"},
+                    {"name": "target_score", "type": "number", "required": True, "description": "Target Org-AI-R score"},
+                    {"name": "h_r_score", "type": "number", "required": True, "description": "Human Readiness score"},
+                ],
+            },
+            {
+                "name": "run_gap_analysis",
+                "description": "Analyze gaps to target state and suggest interventions.",
+                "parameters": [
+                    {"name": "company_id", "type": "string", "required": True, "description": "Company ticker or UUID"},
+                    {"name": "target_org_air", "type": "number", "required": True, "description": "Target Org-AI-R score to reach"},
+                ],
+            },
+        ],
+        "prompts": [
+            {
+                "name": "due_diligence_assessment",
+                "description": "Complete due diligence assessment for a company",
+                "arguments": [{"name": "company_id", "required": True}],
+                "workflow": (
+                    "1. Calculate Org-AI-R score using calculate_org_air_score\n"
+                    "2. For any dimension scoring below 60, call generate_justification to get evidence-backed analysis\n"
+                    "3. Run run_gap_analysis with target_org_air=75\n"
+                    "4. Call project_ebitda_impact with the entry and target scores\n"
+                    "5. Summarise findings: overall readiness level, top 3 gaps, recommended 100-day actions"
+                ),
+            },
+            {
+                "name": "ic_meeting_prep",
+                "description": "Prepare Investment Committee meeting package",
+                "arguments": [{"name": "company_id", "required": True}],
+                "workflow": (
+                    "Step 1 – Portfolio context\n"
+                    "  Call get_portfolio_summary with the relevant fund_id to locate the company and establish its Fund-AI-R benchmark.\n\n"
+                    "Step 2 – Org-AI-R deep dive\n"
+                    "  Call calculate_org_air_score. For every dimension below 70, call generate_justification to retrieve rubric criteria, supporting evidence, and identified gaps.\n\n"
+                    "Step 3 – Value creation thesis\n"
+                    "  Call run_gap_analysis with target_org_air=80 to identify the highest-impact improvement levers.\n"
+                    "  Call project_ebitda_impact using the current and target scores.\n\n"
+                    "Step 4 – IC memo structure\n"
+                    "  Produce a structured memo with:\n"
+                    "  • Executive Summary (2-3 sentences)\n"
+                    "  • Org-AI-R Scorecard (table: dimension, score, level, key gap)\n"
+                    "  • Investment Thesis (how AI readiness drives EBITDA expansion)\n"
+                    "  • Risk Factors (dimensions below 50, governance concerns)\n"
+                    "  • 100-Day Value Creation Plan (top 3 actions with owners)\n"
+                    "  • Recommendation: Proceed / Conditional / Pass"
+                ),
+            },
+        ],
+        "resources": [
+            {
+                "uri": "orgair://parameters/v2.0",
+                "name": "Org-AI-R Scoring Parameters v2.0",
+                "description": "Current scoring parameters: alpha, beta, gamma values",
+                "example": {"version": "2.0", "alpha": 0.60, "beta": 0.12, "gamma_0": 0.0025, "gamma_1": 0.05, "gamma_2": 0.025, "gamma_3": 0.01},
+            },
+            {
+                "uri": "orgair://sectors",
+                "name": "Sector Definitions",
+                "description": "Sector baselines and weights",
+                "example": {"technology": {"h_r_base": 85, "weight_talent": 0.18}, "healthcare": {"h_r_base": 75, "weight_governance": 0.18}},
+            },
+        ],
+    }
