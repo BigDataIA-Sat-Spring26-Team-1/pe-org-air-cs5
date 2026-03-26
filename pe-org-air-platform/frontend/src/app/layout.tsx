@@ -36,7 +36,7 @@ export default function RootLayout({
               <NavItem href="/explorer" icon={<FileSearch size={20} />} label="SEC Explorer" />
               <NavItem href="/rag" icon={<Brain size={20} />} label="RAG Analysis" />
               <NavItem href="/documents" icon={<FileText size={20} />} label="Documents" />
-              <NavItem href="/mcp" icon={<Plug size={20} />} label="MCP Server" />
+              <NavItem href="/mcp-server" icon={<Plug size={20} />} label="MCP Server" />
               <NavItem href="/workflow" icon={<GitBranch size={20} />} label="Agentic Workflow" />
               <NavItem href="/investments" icon={<DollarSign size={20} />} label="Investment ROI" />
               <NavItem href="/observability" icon={<Activity size={20} />} label="Observability" />

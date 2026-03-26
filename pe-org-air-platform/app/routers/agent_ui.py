@@ -3,8 +3,11 @@ from fastapi.responses import FileResponse
 from typing import List, Dict, Any
 import structlog
 import os
+import time
 from pydantic import BaseModel
 from datetime import datetime
+
+from app.services.observability.metrics import AGENT_INVOCATIONS, AGENT_DURATION, HITL_APPROVALS
 
 # Services
 from app.services.integration.portfolio_data_service import portfolio_data_service, PortfolioCompanyView
@@ -15,6 +18,36 @@ from app.agents.state import DueDiligenceState
 
 router = APIRouter(prefix="/agent-ui", tags=["Agent UI Integration"])
 logger = structlog.get_logger()
+
+
+def _track_workflow_metrics(result: dict, elapsed_seconds: float) -> None:
+    """Record Prometheus metrics for each completed agent stage in the workflow."""
+    messages = result.get("messages") or []
+    agent_names = {m.get("agent_name") for m in messages if isinstance(m, dict) and m.get("agent_name")}
+
+    stage_map = {
+        "sec_analyst": "sec_analysis_agent",
+        "scorer": "scoring_agent",
+        "evidence_agent": "evidence_agent",
+        "value_creator": "value_creation_agent",
+        "hitl": "hitl_check",
+        "supervisor": "supervisor",
+    }
+
+    for raw_name, metric_name in stage_map.items():
+        if raw_name in agent_names:
+            AGENT_INVOCATIONS.labels(agent_name=metric_name, status="success").inc()
+
+    # Overall workflow duration attributed to the supervisor
+    AGENT_DURATION.labels(agent_name="due_diligence_workflow").observe(elapsed_seconds)
+
+    # HITL metric
+    requires_approval = result.get("requires_approval", False)
+    if requires_approval:
+        approval_status = result.get("approval_status") or "pending"
+        approval_reason = (result.get("approval_reason") or "score_threshold")[:40]
+        decision = "approved" if approval_status == "approved" else "pending"
+        HITL_APPROVALS.labels(reason=approval_reason, decision=decision).inc()
 
 # Initialise history service using shared clients
 history_service = create_history_service(portfolio_data_service.cs1, portfolio_data_service.cs3, portfolio_data_service.cs2)
@@ -84,9 +117,15 @@ async def trigger_agentic_workflow(request: AgentTriggerRequest):
             "error": None,
         }
         config = {"configurable": {"thread_id": f"dd-{request.company_id}-{datetime.utcnow().isoformat()}"}}
+        t_start = time.perf_counter()
         result = await dd_graph.ainvoke(initial_state, config)
+        elapsed = time.perf_counter() - t_start
+
+        # Track metrics for each completed agent stage
+        _track_workflow_metrics(result, elapsed)
         return result
     except Exception as e:
+        AGENT_INVOCATIONS.labels(agent_name="due_diligence_workflow", status="error").inc()
         logger.error("workflow_trigger_failed", error=str(e))
         raise HTTPException(status_code=500, detail=str(e))
 

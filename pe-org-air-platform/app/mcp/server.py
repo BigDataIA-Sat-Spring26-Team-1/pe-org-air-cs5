@@ -224,11 +224,41 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             }, indent=2))]
 
         elif name == "run_gap_analysis":
-            res = gap_analyzer.analyze(
-                arguments["company_id"],
-                {},
-                arguments["target_org_air"],
-            )
+            company_id = arguments["company_id"]
+            target_org_air = arguments["target_org_air"]
+
+            # Build current_scores from CS3 assessment data so gap analysis uses
+            # real scores instead of the 30.0 fallback default.
+            current_scores: dict = {}
+            try:
+                ticker = await _resolve_ticker(company_id)
+                assessment_data = await portfolio_data_service.cs3.list_assessments(company_id=ticker)
+                items = assessment_data.get("items", [])
+                if items:
+                    v = items[0]
+                    org_air = float(v.get("org_air_score") or 0.0)
+                    vr_score = float(v.get("v_r_score") or 0.0)
+                    hr_score = float(v.get("h_r_score") or 0.0)
+                    if org_air > 0:
+                        # Map composite scores to the 7 dimensions as reasonable proxies.
+                        # HR dimensions: talent, data_culture
+                        # VR dimensions: use_case_portfolio
+                        # Tech dimensions: data_infrastructure, technology_stack, innovation_velocity
+                        # Governance: ai_governance
+                        current_scores = {
+                            "talent": round(hr_score * 0.95, 1),
+                            "data_culture": round(hr_score * 0.85, 1),
+                            "use_case_portfolio": round(vr_score * 0.95, 1),
+                            "data_infrastructure": round((org_air + vr_score) / 2 * 0.88, 1),
+                            "technology_stack": round(org_air * 0.92, 1),
+                            "innovation_velocity": round(org_air * 0.82, 1),
+                            "ai_governance": round(org_air * 0.78, 1),
+                            "leadership": round(org_air * 0.75, 1),
+                        }
+            except Exception:
+                pass  # fall through to default 30.0 if CS3 is unavailable
+
+            res = gap_analyzer.analyze(company_id, current_scores, target_org_air)
             return [TextContent(type="text", text=json.dumps(res, indent=2))]
 
         else:
@@ -397,9 +427,29 @@ async def health(request: Request):
     return JSONResponse({"status": "ok", "server": "pe-orgair-mcp"})
 
 
+async def metrics_json(request: Request):
+    """Expose MCP server Prometheus counters as JSON for the observability dashboard."""
+    try:
+        from prometheus_client import REGISTRY
+        snapshot: dict = {"mcp_tool_calls": {}}
+        for metric_family in REGISTRY.collect():
+            if metric_family.name == "mcp_tool_calls_total":
+                for sample in metric_family.samples:
+                    if sample.name.endswith("_total"):
+                        tool = sample.labels.get("tool_name", "unknown")
+                        status = sample.labels.get("status", "unknown")
+                        if tool not in snapshot["mcp_tool_calls"]:
+                            snapshot["mcp_tool_calls"][tool] = {"success": 0, "error": 0}
+                        snapshot["mcp_tool_calls"][tool][status] = int(sample.value)
+        return JSONResponse(snapshot)
+    except Exception:
+        return JSONResponse({"mcp_tool_calls": {}})
+
+
 starlette_app = Starlette(
     routes=[
         Route("/health", endpoint=health),
+        Route("/metrics-json", endpoint=metrics_json),
         Route("/sse", endpoint=handle_sse),
         Mount("/messages/", app=sse_transport.handle_post_message),
         Route("/tools/{tool_name}", endpoint=handle_tool_http, methods=["POST"]),

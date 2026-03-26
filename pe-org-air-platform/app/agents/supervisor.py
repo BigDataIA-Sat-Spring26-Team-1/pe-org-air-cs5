@@ -23,7 +23,7 @@ async def supervisor_node(state: DueDiligenceState) -> Dict[str, Any]:
         return {"next_agent": "scorer"}
     elif not state.get("evidence_justifications"):
         return {"next_agent": "evidence_agent"}
-    elif not state.get("value_creation_plan") and state["assessment_type"] != "screening":
+    elif not state.get("value_creation_plan") and state["assessment_type"] not in ("screening", "quick"):
         return {"next_agent": "value_creator"}
     else:
         return {"next_agent": "complete"}

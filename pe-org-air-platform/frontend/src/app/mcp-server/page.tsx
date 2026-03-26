@@ -57,7 +57,8 @@ export default function MCPPage() {
       .then(setData)
       .catch(() => {});
 
-    fetch(`${API_BASE.replace("8000", "3001")}/health`)
+    // /mcp/ is proxied by nginx to the MCP server container
+    fetch(`${API_BASE}/mcp/health`)
       .then((r) => r.ok ? setMcpHealth("ok") : setMcpHealth("error"))
       .catch(() => setMcpHealth("error"));
   }, []);

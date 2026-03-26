@@ -39,6 +39,7 @@ interface WorkflowResult {
       gaps?: Gap[];
       top_priority?: string;
       target_org_air?: number;
+      gap_count?: number;
     };
   };
   error?: string;
@@ -101,6 +102,8 @@ export default function WorkflowPage() {
     }, 8000);
 
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 180000); // 3 min timeout
       const res = await fetch(`${API_BASE}/api/v1/agent-ui/trigger-due-diligence`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -110,7 +113,9 @@ export default function WorkflowPage() {
           requested_by: "analyst",
           target_org_air: 75.0,
         }),
+        signal: controller.signal,
       });
+      clearTimeout(timeout);
 
       clearInterval(stageTimer);
 
@@ -120,7 +125,7 @@ export default function WorkflowPage() {
       }
 
       const data = await res.json();
-      setStageIndex(STAGES.length - 1);
+      setStageIndex(STAGES.length); // > last index so Complete shows as done
       setResult(data);
     } catch (e: unknown) {
       clearInterval(stageTimer);
@@ -194,7 +199,7 @@ export default function WorkflowPage() {
             </select>
 
             <label className="block text-xs text-slate-500 mb-1">Assessment Type</label>
-            <div className="flex gap-2 mb-4">
+            <div className="flex gap-2 mb-1">
               {(["full", "quick"] as const).map((t) => (
                 <button
                   key={t}
@@ -210,6 +215,11 @@ export default function WorkflowPage() {
                 </button>
               ))}
             </div>
+            <p className="text-xs text-slate-600 mb-4">
+              {assessmentType === "full"
+                ? "Full: Scoring → Evidence → Value Creation → HITL. Includes gap analysis & EBITDA projection."
+                : "Quick: Scoring → Evidence → HITL. Skips value creation. Faster (~20–40s)."}
+            </p>
 
             {selectedCompany && (
               <div className="bg-slate-800/50 rounded-lg p-3 mb-4">
@@ -323,9 +333,17 @@ export default function WorkflowPage() {
               </div>
 
               {/* Gap Analysis */}
-              {gaps.length > 0 && (
-                <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
-                  <h2 className="text-sm font-semibold text-slate-300 mb-4">Gap Analysis by Dimension</h2>
+              <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
+                <h2 className="text-sm font-semibold text-slate-300 mb-4">Gap Analysis by Dimension</h2>
+                {gaps.length === 0 ? (
+                  <div className="text-center py-6">
+                    <div className="text-emerald-400 text-sm font-medium mb-1">No gaps identified</div>
+                    <div className="text-slate-500 text-xs">
+                      Org-AI-R score ({fmt(result?.value_creation_plan?.gap_analysis?.target_org_air ?? scoring?.org_air)}) already meets or exceeds the target.
+                      All dimensions are above threshold.
+                    </div>
+                  </div>
+                ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
@@ -356,8 +374,8 @@ export default function WorkflowPage() {
                       </tbody>
                     </table>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
 
               {/* Document Downloads */}
               <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
