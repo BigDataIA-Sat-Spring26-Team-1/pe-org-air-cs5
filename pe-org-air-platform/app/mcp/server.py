@@ -10,7 +10,11 @@ from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from mcp.types import (
     Tool,
-    TextContent
+    TextContent,
+    Resource,
+    Prompt,
+    PromptArgument,
+    PromptMessage,
 )
 
 # Integrations
@@ -179,6 +183,75 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
     except Exception as e:
         logger.error("tool_execution_failed", error=str(e))
         return [TextContent(type="text", text=json.dumps({"error": str(e)}))]
+
+@mcp_server.list_resources()
+async def list_resources() -> list[Resource]:
+    return [
+        Resource(
+            uri="orgair://parameters/v2.0",
+            name="Org-AI-R Scoring Parameters v2.0",
+            description="Current scoring parameters: alpha, beta, gamma values",
+        ),
+        Resource(
+            uri="orgair://sectors",
+            name="Sector Definitions",
+            description="Sector baselines and weights",
+        ),
+    ]
+
+@mcp_server.read_resource()
+async def read_resource(uri: str) -> str:
+    if uri == "orgair://parameters/v2.0":
+        return json.dumps({
+            "version": "2.0",
+            "alpha": 0.60,
+            "beta": 0.12,
+            "gamma_0": 0.0025,
+            "gamma_1": 0.05,
+            "gamma_2": 0.025,
+            "gamma_3": 0.01,
+        })
+    elif uri == "orgair://sectors":
+        return json.dumps({
+            "technology": {"h_r_base": 85, "weight_talent": 0.18},
+            "healthcare": {"h_r_base": 75, "weight_governance": 0.18},
+        })
+    return "{}"
+
+@mcp_server.list_prompts()
+async def list_prompts() -> list[Prompt]:
+    return [
+        Prompt(
+            name="due_diligence_assessment",
+            description="Complete due diligence assessment for a company",
+            arguments=[PromptArgument(name="company_id", required=True)],
+        ),
+        Prompt(
+            name="ic_meeting_prep",
+            description="Prepare Investment Committee meeting package",
+            arguments=[PromptArgument(name="company_id", required=True)],
+        ),
+    ]
+
+@mcp_server.get_prompt()
+async def get_prompt(name: str, arguments: Dict[str, Any]) -> list[PromptMessage]:
+    if name == "due_diligence_assessment":
+        return [
+            PromptMessage(
+                role="user",
+                content=TextContent(
+                    type="text",
+                    text=(
+                        f"Perform due diligence for {arguments['company_id']}.\n"
+                        "1. Calculate Org-AI-R score using calculate_org_air_score\n"
+                        "2. For dimensions below 60, use generate_justification\n"
+                        "3. Run gap_analysis with target_org_air=75\n"
+                        "4. Project EBITDA impact"
+                    ),
+                ),
+            )
+        ]
+    return []
 
 async def main():
     logger.info("mcp_server_started")
