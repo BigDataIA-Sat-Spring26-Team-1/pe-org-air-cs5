@@ -1,13 +1,27 @@
 """
-MCP Server Core - Exposing CS1-CS4 API tools.
+MCP Server - Exposes CS1-CS4 API tools over SSE transport (HTTP) so Claude
+Desktop and other MCP-compatible clients can connect remotely.
+
+Endpoints:
+  GET  /sse           - SSE stream (MCP protocol handshake + events)
+  POST /messages/     - Client-to-server MCP messages
+  POST /tools/<name>  - Lightweight HTTP bridge used by MCPToolCaller in agents
+  GET  /health        - Liveness probe for docker healthcheck
+
+Transport is selected via MCP_TRANSPORT env var:
+  sse   (default) - runs Starlette/uvicorn HTTP server on MCP_PORT (3001)
+  stdio           - runs classic stdio transport for local Claude Desktop use
 """
 import asyncio
 import json
+import os
 import structlog
 from typing import Dict, Any
 
+import uvicorn
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
+from mcp.server.sse import SseServerTransport
 from mcp.types import (
     Tool,
     TextContent,
@@ -16,6 +30,10 @@ from mcp.types import (
     PromptArgument,
     PromptMessage,
 )
+from starlette.applications import Starlette
+from starlette.requests import Request
+from starlette.responses import JSONResponse
+from starlette.routing import Mount, Route
 
 # Integrations
 from app.services.integration.portfolio_data_service import portfolio_data_service
@@ -24,6 +42,11 @@ from app.services.value_creation.gap_analysis import gap_analyzer
 
 logger = structlog.get_logger()
 mcp_server = Server("pe-orgair-cs5-server")
+
+
+# ---------------------------------------------------------------------------
+# Tool definitions
+# ---------------------------------------------------------------------------
 
 @mcp_server.list_tools()
 async def list_tools() -> list[Tool]:
@@ -113,16 +136,20 @@ async def list_tools() -> list[Tool]:
         ),
     ]
 
+
+# ---------------------------------------------------------------------------
+# Tool execution
+# ---------------------------------------------------------------------------
+
 @mcp_server.call_tool()
 async def call_tool(name: str, arguments: dict) -> list[TextContent]:
     """Execute the tools natively."""
     logger.info("tool_called", tool=name, args=arguments)
-    
+
     try:
         if name == "get_portfolio_summary":
             fund_id = arguments["fund_id"]
             views = await portfolio_data_service.get_portfolio_view(fund_id)
-            # Serialize
             return [TextContent(type="text", text=json.dumps([{
                 "company_id": v.company_id,
                 "ticker": v.ticker,
@@ -137,7 +164,6 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             items = assessment_data.get("items", [])
             if not items:
                 return [TextContent(type="text", text=json.dumps({"error": f"No assessment for {company_id}"}))]
-            
             v = items[0]
             return [TextContent(type="text", text=json.dumps({
                 "org_air": v.get("org_air_score", 0.0),
@@ -150,41 +176,40 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             evidence = await portfolio_data_service.cs2.get_evidence(ticker=company_id)
             return [TextContent(type="text", text=json.dumps({
                 "count": len(evidence),
-                "items": evidence[:5] # limit returned text so context isn't blown out
+                "items": evidence[:5],  # cap to avoid blowing out LLM context
             }, indent=2))]
 
         elif name == "generate_justification":
-            # Using CS4 client
             company_id = arguments["company_id"]
-            from app.models.rag import Dimension # Dynamic import
+            from app.models.rag import Dimension
             dim = Dimension(arguments["dimension"])
             res = await portfolio_data_service.cs4.generate_justification(company_id, dim)
             return [TextContent(type="text", text=json.dumps({
                 "score": res.score,
                 "level": res.level_name,
                 "strength": res.evidence_strength,
-                "rubric": res.rubric_criteria
+                "rubric": res.rubric_criteria,
             }, indent=2))]
 
         elif name == "project_ebitda_impact":
             proj = ebitda_calculator.project(
-                arguments["company_id"], 
-                arguments["entry_score"], 
-                arguments["target_score"], 
-                arguments["h_r_score"]
+                arguments["company_id"],
+                arguments["entry_score"],
+                arguments["target_score"],
+                arguments["h_r_score"],
             )
             return [TextContent(type="text", text=json.dumps({
                 "base_case_pct": proj.base_pct,
                 "conservative_pct": proj.conservative_pct,
                 "optimistic_pct": proj.optimistic_pct,
-                "delta_air": proj.delta_air
+                "delta_air": proj.delta_air,
             }, indent=2))]
 
         elif name == "run_gap_analysis":
             res = gap_analyzer.analyze(
                 arguments["company_id"],
-                {}, 
-                arguments["target_org_air"]
+                {},
+                arguments["target_org_air"],
             )
             return [TextContent(type="text", text=json.dumps(res, indent=2))]
 
@@ -192,8 +217,13 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             return [TextContent(type="text", text=json.dumps({"error": f"Unknown tool: {name}"}))]
 
     except Exception as e:
-        logger.error("tool_execution_failed", error=str(e))
+        logger.error("tool_execution_failed", tool=name, error=str(e))
         return [TextContent(type="text", text=json.dumps({"error": str(e)}))]
+
+
+# ---------------------------------------------------------------------------
+# Resources
+# ---------------------------------------------------------------------------
 
 @mcp_server.list_resources()
 async def list_resources() -> list[Resource]:
@@ -209,6 +239,7 @@ async def list_resources() -> list[Resource]:
             description="Sector baselines and weights",
         ),
     ]
+
 
 @mcp_server.read_resource()
 async def read_resource(uri: str) -> str:
@@ -229,6 +260,11 @@ async def read_resource(uri: str) -> str:
         })
     return "{}"
 
+
+# ---------------------------------------------------------------------------
+# Prompts
+# ---------------------------------------------------------------------------
+
 @mcp_server.list_prompts()
 async def list_prompts() -> list[Prompt]:
     return [
@@ -243,6 +279,7 @@ async def list_prompts() -> list[Prompt]:
             arguments=[PromptArgument(name="company_id", required=True)],
         ),
     ]
+
 
 @mcp_server.get_prompt()
 async def get_prompt(name: str, arguments: Dict[str, Any]) -> list[PromptMessage]:
@@ -280,7 +317,7 @@ async def get_prompt(name: str, arguments: Dict[str, Any]) -> list[PromptMessage
                         "  Call get_portfolio_summary with the relevant fund_id to locate "
                         f"{company_id} and establish its Fund-AI-R benchmark.\n\n"
                         "Step 2 – Org-AI-R deep dive\n"
-                        "  Call calculate_org_air_score for {company_id}.\n"
+                        f"  Call calculate_org_air_score for {company_id}.\n"
                         "  For every dimension below 70, call generate_justification to "
                         "retrieve rubric criteria, supporting evidence, and identified gaps.\n\n"
                         "Step 3 – Value creation thesis\n"
@@ -302,10 +339,77 @@ async def get_prompt(name: str, arguments: Dict[str, Any]) -> list[PromptMessage
 
     return []
 
+
+# ---------------------------------------------------------------------------
+# SSE transport — Starlette app (used when MCP_TRANSPORT=sse)
+# ---------------------------------------------------------------------------
+
+sse_transport = SseServerTransport("/messages/")
+
+
+async def handle_sse(request: Request):
+    """MCP SSE handshake — Claude Desktop connects here."""
+    async with sse_transport.connect_sse(
+        request.scope, request.receive, request._send
+    ) as streams:
+        await mcp_server.run(
+            streams[0], streams[1], mcp_server.create_initialization_options()
+        )
+
+
+async def handle_tool_http(request: Request):
+    """
+    Simple HTTP bridge so MCPToolCaller (used by LangGraph agents) can call
+    tools without speaking the full MCP wire protocol.
+
+    POST /tools/<tool_name>   body: { ...tool arguments }
+    Returns: { "result": "<json string>" }
+    """
+    tool_name = request.path_params["tool_name"]
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    results = await call_tool(tool_name, body)
+    text = results[0].text if results else "{}"
+    return JSONResponse({"result": text})
+
+
+async def health(request: Request):
+    return JSONResponse({"status": "ok", "server": "pe-orgair-mcp"})
+
+
+starlette_app = Starlette(
+    routes=[
+        Route("/health", endpoint=health),
+        Route("/sse", endpoint=handle_sse),
+        Mount("/messages/", app=sse_transport.handle_post_message),
+        Route("/tools/{tool_name}", endpoint=handle_tool_http, methods=["POST"]),
+    ]
+)
+
+
+# ---------------------------------------------------------------------------
+# Entry point
+# ---------------------------------------------------------------------------
+
 async def main():
-    logger.info("mcp_server_started")
-    async with stdio_server() as (read_stream, write_stream):
-        await mcp_server.run(read_stream, write_stream, mcp_server.create_initialization_options())
+    transport = os.getenv("MCP_TRANSPORT", "sse")
+
+    if transport == "stdio":
+        logger.info("mcp_server_started", transport="stdio")
+        async with stdio_server() as (read_stream, write_stream):
+            await mcp_server.run(
+                read_stream, write_stream, mcp_server.create_initialization_options()
+            )
+    else:
+        host = os.getenv("MCP_HOST", "0.0.0.0")
+        port = int(os.getenv("MCP_PORT", "3001"))
+        logger.info("mcp_server_started", transport="sse", host=host, port=port)
+        config = uvicorn.Config(starlette_app, host=host, port=port, log_level="info")
+        server = uvicorn.Server(config)
+        await server.serve()
+
 
 if __name__ == "__main__":
     asyncio.run(main())

@@ -145,6 +145,10 @@ services:
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000
     expose:
       - "8000"
+    environment:
+      <<: *airflow-common-env
+      # Point internal agents at the MCP server container
+      MCP_SERVER_URL: "http://mcp-server:3001"
     volumes:
       - ../app:/opt/airflow/app
       - ../logs:/opt/airflow/logs
@@ -153,6 +157,38 @@ services:
       - ..:/opt/airflow/project_root
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+      mcp-server:
+        condition: service_healthy
+
+  # ----------------------------------------------------------------
+  # MCP SERVER — SSE transport for Claude Desktop + agent tool bridge
+  # ----------------------------------------------------------------
+  mcp-server:
+    <<: *airflow-common
+    entrypoint: []
+    command: python -m app.mcp.server
+    ports:
+      - "3001:3001"
+    expose:
+      - "3001"
+    environment:
+      <<: *airflow-common-env
+      MCP_TRANSPORT: "sse"
+      MCP_HOST: "0.0.0.0"
+      MCP_PORT: "3001"
+    volumes:
+      - ../app:/opt/airflow/app
+      - ../logs:/opt/airflow/logs
+      - ../data:/opt/airflow/app_code/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -186,6 +222,7 @@ services:
     depends_on:
       - frontend
       - api
+      - mcp-server
     restart: unless-stopped
 
 volumes:

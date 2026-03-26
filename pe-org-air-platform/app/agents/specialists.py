@@ -4,6 +4,7 @@ Specialist Agents - Domain-specific agents for the due diligence workflow.
 from typing import Dict, Any
 from datetime import datetime, timezone
 import json
+import os
 
 import httpx
 from langchain_openai import ChatOpenAI
@@ -22,7 +23,11 @@ def _now_utc() -> datetime:
 
 
 class MCPToolCaller:
-    def __init__(self, base_url: str = "http://localhost:3000"):
+    def __init__(self, base_url: str = None):
+        # In docker the api container sets MCP_SERVER_URL=http://mcp-server:3001.
+        # Locally it falls back to localhost:3001 (same port the SSE server binds to).
+        if base_url is None:
+            base_url = os.getenv("MCP_SERVER_URL", "http://localhost:3001")
         self.base_url = base_url
         self.client = httpx.AsyncClient(timeout=30.0)
 
