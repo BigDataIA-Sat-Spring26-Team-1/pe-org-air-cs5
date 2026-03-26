@@ -13,8 +13,7 @@ logger = structlog.get_logger()
 # ---------------------------------------------------------
 
 async def fetch_ticker_list(source: str = "config") -> List[str]:
-    """
-    Task 1: Fetch list of tickers to process.
+    """Fetch list of tickers to process.
     Could fetch from Snowflake, a config file, or hardcoded list.
     """
     # Import inside function to avoid top-level load
@@ -34,8 +33,7 @@ async def download_ticker_filings(
     filing_types: List[str] = ["10-K", "10-Q", "8-K", "DEF 14A"],
     download_dir: str = "/opt/airflow/app_code/data/sec_downloads"
 ) -> Dict[str, Any]:
-    """
-    Task 2 (Mapped): Download filings for a single ticker.
+    """Download filings for a single ticker.
     Returns summary stats and path to downloaded files.
     """
     from app.pipelines.sec.downloader import SecDownloader
@@ -61,8 +59,7 @@ async def download_ticker_filings(
 def scan_and_discover_filings(
     download_dir: str = "/opt/airflow/app_code/data/sec_downloads"
 ) -> List[Dict[str, Any]]:
-    """
-    Task 3: Scan directory and return list of FilingMetadata dicts.
+    """Scan directory and return list of FilingMetadata dicts.
     This bridges the Download and Process phases.
     """
     from pathlib import Path
@@ -107,8 +104,7 @@ async def process_single_filing(
     filing_meta: Dict[str, Any],
     s3_force_upload: bool = False
 ) -> Dict[str, Any]:
-    """
-    Task 4 (Mapped): Process a single filing.
+    """Process a single filing.
     Parse -> Hash -> Chunk -> S3 (Upload) -> Snowflake (Prep).
     Returns dict ready for DB insertion or status.
     """
@@ -182,9 +178,7 @@ async def process_single_filing(
     }
 
 async def save_filing_to_db(doc_data: Dict[str, Any]):
-    """
-    Task 5: Save processed filing data to Snowflake.
-    """
+    """Save processed filing data to Snowflake."""
     if not doc_data: return
     
     from app.services.snowflake import db

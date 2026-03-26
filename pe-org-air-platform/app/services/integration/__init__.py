@@ -1,5 +1,5 @@
 """
-Internal Platform SDK Clients — Teammate B Task 1.
+Internal Platform SDK Clients.
 
 Thin async HTTP wrappers around the FastAPI REST endpoints,
 allowing the RAG engine to fetch company metadata, signals,

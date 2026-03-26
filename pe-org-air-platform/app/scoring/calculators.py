@@ -187,7 +187,7 @@ class ConfidenceCalculator:
 
 
 class OrgAIRCalculator:
-    """Final aggregator for the PE Org-AI-R System (Lab 6)."""
+    """Final aggregator for the PE Org-AI-R System."""
 
     def __init__(self):
         self.vr_calc = VRCalculator()

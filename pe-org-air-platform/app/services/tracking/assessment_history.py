@@ -1,8 +1,9 @@
-"""Assessment History Tracking — Stores score history for trend analysis."""
+"""Assessment History Tracking — stores score snapshots and computes trends."""
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Dict, Optional
 from decimal import Decimal
+import uuid
 import structlog
 
 from app.services.integration.cs1_client import CS1Client
@@ -10,10 +11,25 @@ from app.services.integration.cs3_client import CS3Client
 
 logger = structlog.get_logger()
 
+# Resolved lazily to avoid circular imports at module load time.
+_db = None
+
+
+def _get_db():
+    global _db
+    if _db is None:
+        from app.services.snowflake import db as _snowflake_db
+        _db = _snowflake_db
+    return _db
+
+
+def _now_utc() -> datetime:
+    return datetime.now(timezone.utc)
+
 
 @dataclass
 class AssessmentSnapshot:
-    """Single point-in-time assessment."""
+    """Point-in-time assessment record."""
     company_id: str
     timestamp: datetime
     org_air: Decimal
@@ -29,7 +45,7 @@ class AssessmentSnapshot:
 
 @dataclass
 class AssessmentTrend:
-    """Trend analysis for a company."""
+    """Trend summary derived from a series of snapshots."""
     company_id: str
     current_org_air: float
     entry_org_air: float
@@ -41,14 +57,7 @@ class AssessmentTrend:
 
 
 class AssessmentHistoryService:
-    """
-    Tracks assessment history using CS1 for storage, CS3 for calculations.
-
-    Students must implement:
-    1. record_assessment() — Store new assessment snapshot
-    2. get_history() — Retrieve snapshots for a company
-    3. calculate_trend() — Compute trend metrics
-    """
+    """Pulls scores from CS3 and persists snapshots to Snowflake."""
 
     def __init__(self, cs1_client: CS1Client, cs3_client: CS3Client):
         self.cs1 = cs1_client
@@ -62,23 +71,16 @@ class AssessmentHistoryService:
         assessment_type: str = "full",
     ) -> AssessmentSnapshot:
         """
-        Record current assessment as a snapshot.
-
-        Flow:
-        1. Call CS3 get_assessment() for current scores
-        2. Create snapshot with timestamp
-        3. Store in history (via CS1/Snowflake)
-        4. Return snapshot
+        Grab the latest CS3 assessment for a company, wrap it in a snapshot,
+        persist it, and return it.
         """
-        # Get current assessment from YOUR CS3
         assessment = await self.cs3.list_assessments(company_id=company_id)
         items = assessment.get("items", [])
 
         if not items:
-            # No assessment found — return a default snapshot
             snapshot = AssessmentSnapshot(
                 company_id=company_id,
-                timestamp=datetime.utcnow(),
+                timestamp=_now_utc(),
                 org_air=Decimal("0"),
                 vr_score=Decimal("0"),
                 hr_score=Decimal("0"),
@@ -89,46 +91,37 @@ class AssessmentHistoryService:
                 assessor_id=assessor_id,
                 assessment_type=assessment_type,
             )
-            # Update cache
-            if company_id not in self._cache:
-                self._cache[company_id] = []
-            self._cache[company_id].append(snapshot)
-
-            logger.info("assessment_recorded",
-                        company_id=company_id,
-                        org_air=float(snapshot.org_air))
+            self._cache.setdefault(company_id, []).append(snapshot)
+            logger.info("assessment_recorded_empty", company_id=company_id)
             return snapshot
 
         latest = items[0]
+        ci_raw = latest.get("confidence_interval")
+        if isinstance(ci_raw, (list, tuple)) and len(ci_raw) >= 2:
+            ci = (float(ci_raw[0]), float(ci_raw[1]))
+        else:
+            ci = (0.0, 0.0)
 
         snapshot = AssessmentSnapshot(
             company_id=company_id,
-            timestamp=datetime.utcnow(),
-            org_air=Decimal(str(latest.get("org_air_score", 0))),
-            vr_score=Decimal(str(latest.get("v_r_score", 0))),
-            hr_score=Decimal(str(latest.get("h_r_score", 0))),
-            synergy_score=Decimal(str(latest.get("synergy_score", 0))),
+            timestamp=_now_utc(),
+            org_air=Decimal(str(latest.get("org_air_score") or 0)),
+            vr_score=Decimal(str(latest.get("v_r_score") or 0)),
+            hr_score=Decimal(str(latest.get("h_r_score") or 0)),
+            synergy_score=Decimal(str(latest.get("synergy_score") or 0)),
             dimension_scores={
                 d.get("dimension", d.get("name", "unknown")): Decimal(str(d.get("score", 0)))
                 for d in latest.get("dimension_scores", [])
                 if isinstance(d, dict)
             },
-            confidence_interval=(
-                latest.get("confidence_interval", [0, 0])[0] if isinstance(latest.get("confidence_interval"), (list, tuple)) and len(latest.get("confidence_interval", [])) >= 2 else 0.0,
-                latest.get("confidence_interval", [0, 0])[1] if isinstance(latest.get("confidence_interval"), (list, tuple)) and len(latest.get("confidence_interval", [])) >= 2 else 0.0,
-            ),
+            confidence_interval=ci,
             evidence_count=latest.get("evidence_count", 0),
             assessor_id=assessor_id,
             assessment_type=assessment_type,
         )
 
-        # Store via CS1/Snowflake
         await self._store_snapshot(snapshot)
-
-        # Update cache
-        if company_id not in self._cache:
-            self._cache[company_id] = []
-        self._cache[company_id].append(snapshot)
+        self._cache.setdefault(company_id, []).append(snapshot)
 
         logger.info("assessment_recorded",
                     company_id=company_id,
@@ -136,46 +129,104 @@ class AssessmentHistoryService:
         return snapshot
 
     async def _store_snapshot(self, snapshot: AssessmentSnapshot) -> None:
-        """Store snapshot in Snowflake via CS1."""
-        # In production: INSERT INTO assessment_history ...
-        pass
+        """
+        Write the snapshot to the assessments table in Snowflake.
+
+        Each call inserts a new row, so the table doubles as a history log.
+        Failures are logged and swallowed so a DB hiccup never kills the
+        agentic workflow.
+        """
+        try:
+            db = _get_db()
+            record = {
+                "id": uuid.uuid4(),
+                "company_id": snapshot.company_id,
+                "assessment_type": snapshot.assessment_type,
+                "assessment_date": snapshot.timestamp.date(),
+                "status": "completed",
+                "primary_assessor": snapshot.assessor_id,
+                "secondary_assessor": None,
+                "v_r_score": float(snapshot.vr_score),
+                "h_r_score": float(snapshot.hr_score),
+                "synergy_score": float(snapshot.synergy_score),
+                "org_air_score": float(snapshot.org_air),
+                "confidence_score": None,
+                "confidence_lower": snapshot.confidence_interval[0],
+                "confidence_upper": snapshot.confidence_interval[1],
+            }
+            await db.create_assessment(record)
+            logger.info("snapshot_persisted",
+                        company_id=snapshot.company_id,
+                        org_air=float(snapshot.org_air))
+        except Exception as exc:
+            logger.warning("snapshot_persist_failed",
+                           company_id=snapshot.company_id,
+                           error=str(exc))
 
     async def get_history(
         self,
         company_id: str,
         days: int = 365,
     ) -> List[AssessmentSnapshot]:
-        """Retrieve assessment history from CS1/Snowflake."""
-        # Check cache first
+        """
+        Return snapshots for the given window. Hits the in-memory cache first;
+        falls back to querying CS3 / Snowflake if the cache is cold.
+        """
         if company_id in self._cache:
-            cutoff = datetime.utcnow() - timedelta(days=days)
+            cutoff = _now_utc() - timedelta(days=days)
             return [s for s in self._cache[company_id] if s.timestamp >= cutoff]
 
-        # Query CS1/Snowflake
-        # SELECT * FROM assessment_history WHERE company_id = ? AND timestamp >= ?
-        return []
+        try:
+            data = await self.cs3.list_assessments(
+                company_id=company_id,
+                page_size=500,
+            )
+            items = data.get("items", [])
+            cutoff = _now_utc() - timedelta(days=days)
+            snapshots: List[AssessmentSnapshot] = []
+            for item in items:
+                raw_ts = item.get("created_at") or item.get("assessment_date")
+                try:
+                    ts = datetime.fromisoformat(str(raw_ts)).replace(tzinfo=timezone.utc)
+                except (ValueError, TypeError):
+                    ts = _now_utc()
+                if ts < cutoff:
+                    continue
+                ci_raw = item.get("confidence_interval")
+                if isinstance(ci_raw, (list, tuple)) and len(ci_raw) >= 2:
+                    ci = (float(ci_raw[0]), float(ci_raw[1]))
+                else:
+                    ci = (
+                        float(item.get("confidence_lower") or 0),
+                        float(item.get("confidence_upper") or 0),
+                    )
+                snapshots.append(AssessmentSnapshot(
+                    company_id=company_id,
+                    timestamp=ts,
+                    org_air=Decimal(str(item.get("org_air_score") or 0)),
+                    vr_score=Decimal(str(item.get("v_r_score") or 0)),
+                    hr_score=Decimal(str(item.get("h_r_score") or 0)),
+                    synergy_score=Decimal(str(item.get("synergy_score") or 0)),
+                    dimension_scores={},
+                    confidence_interval=ci,
+                    evidence_count=0,
+                    assessor_id=item.get("primary_assessor", "system"),
+                    assessment_type=item.get("assessment_type", "full"),
+                ))
+            self._cache[company_id] = snapshots
+            return snapshots
+        except Exception as exc:
+            logger.warning("get_history_failed", company_id=company_id, error=str(exc))
+            return []
 
     async def calculate_trend(self, company_id: str, days: int = 365) -> AssessmentTrend:
-        """Calculate trend metrics from history."""
+        """Compute trend direction and deltas from available snapshot history."""
         history = await self.get_history(company_id, days=days)
 
         if not history:
-            # No history, get current assessment
-            current = await self.cs3.list_assessments(company_id=company_id)
-            items = current.get("items", [])
-            if not items:
-                return AssessmentTrend(
-                    company_id=company_id,
-                    current_org_air=0.0,
-                    entry_org_air=0.0,
-                    delta_since_entry=0.0,
-                    delta_30d=None,
-                    delta_90d=None,
-                    trend_direction="stable",
-                    snapshot_count=0,
-                )
-            latest = items[0]
-            score = latest.get("org_air_score", 0.0)
+            current_data = await self.cs3.list_assessments(company_id=company_id)
+            items = current_data.get("items", [])
+            score = float(items[0].get("org_air_score", 0.0)) if items else 0.0
             return AssessmentTrend(
                 company_id=company_id,
                 current_org_air=score,
@@ -187,26 +238,23 @@ class AssessmentHistoryService:
                 snapshot_count=0,
             )
 
-        # Sort by timestamp
         history.sort(key=lambda s: s.timestamp)
 
         current = float(history[-1].org_air)
         entry = float(history[0].org_air)
 
-        # Calculate deltas
-        now = datetime.utcnow()
-        delta_30d = None
-        delta_90d = None
+        now = _now_utc()
+        delta_30d: Optional[float] = None
+        delta_90d: Optional[float] = None
 
-        for snapshot in reversed(history):
-            age_days = (now - snapshot.timestamp).days
+        for snap in reversed(history):
+            age_days = (now - snap.timestamp).days
             if age_days >= 30 and delta_30d is None:
-                delta_30d = current - float(snapshot.org_air)
+                delta_30d = current - float(snap.org_air)
             if age_days >= 90 and delta_90d is None:
-                delta_90d = current - float(snapshot.org_air)
+                delta_90d = current - float(snap.org_air)
                 break
 
-        # Determine trend direction
         delta = current - entry
         if delta > 5:
             direction = "improving"
@@ -227,6 +275,5 @@ class AssessmentHistoryService:
         )
 
 
-# Factory function
 def create_history_service(cs1: CS1Client, cs3: CS3Client) -> AssessmentHistoryService:
     return AssessmentHistoryService(cs1, cs3)

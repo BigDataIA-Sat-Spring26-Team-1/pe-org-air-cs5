@@ -1,4 +1,5 @@
-"""Investment Tracker with ROI — Bonus extension building on Task 9.4.
+"""
+Investment Tracker with ROI.
 
 Tracks PE portfolio investments, calculates financial returns (ROI, MOIC, IRR),
 and attributes value creation to AI-readiness improvements using assessment
@@ -89,7 +90,7 @@ class PortfolioROISummary:
 class InvestmentTracker:
     """Tracks PE investments and calculates ROI with AI-readiness attribution.
 
-    Integrates with AssessmentHistoryService (Task 9.4) for score trends.
+    Integrates with AssessmentHistoryService for score trends.
     """
 
     def __init__(self, history_service: Optional[AssessmentHistoryService] = None):
@@ -109,26 +110,7 @@ class InvestmentTracker:
         exit_date: Optional[datetime] = None,
         investment_amount_mm: float = 0.0,
     ) -> Investment:
-        """Record a new investment position.
-
-        Args:
-            company_id: Unique company identifier.
-            company_name: Human-readable company name.
-            sector: Industry sector for AI-coefficient lookup.
-            entry_date: Date of investment.
-            entry_ev_mm: Enterprise value at entry ($MM).
-            entry_org_air: Org-AI-R score at entry (0-100).
-            current_ev_mm: Current enterprise value ($MM).
-            current_org_air: Current Org-AI-R score (0-100).
-            exit_date: Date of exit, or None if still held.
-            investment_amount_mm: Equity invested ($MM).
-
-        Returns:
-            The recorded Investment.
-
-        Raises:
-            ValueError: If entry_ev_mm is negative.
-        """
+        """Record a new investment position."""
         if entry_ev_mm < 0:
             raise ValueError("Entry enterprise value cannot be negative")
         if current_ev_mm < 0:
@@ -163,12 +145,7 @@ class InvestmentTracker:
         current_org_air: Optional[float] = None,
         exit_date: Optional[datetime] = None,
     ) -> Investment:
-        """Update mark-to-market value for an existing investment.
-
-        Raises:
-            KeyError: If company_id not found.
-            ValueError: If current_ev_mm is negative.
-        """
+        """Update mark-to-market value for an existing investment."""
         if company_id not in self._investments:
             raise KeyError(f"Investment not found: {company_id}")
         if current_ev_mm < 0:
@@ -185,11 +162,7 @@ class InvestmentTracker:
         return inv
 
     def calculate_roi(self, company_id: str) -> InvestmentROI:
-        """Calculate comprehensive ROI for a single investment.
-
-        Raises:
-            KeyError: If company_id not found.
-        """
+        """Calculate comprehensive ROI for a single investment."""
         if company_id not in self._investments:
             raise KeyError(f"Investment not found: {company_id}")
 
@@ -207,14 +180,13 @@ class InvestmentTracker:
             simple_roi = ((current_ev - entry_ev) / entry_ev) * 100
             moic = current_ev / entry_ev
         else:
-            # Zero entry EV edge case
             simple_roi = 0.0
             moic = 0.0
 
         # Annualized ROI (CAGR)
         annualized_roi = self._calculate_annualized_roi(moic, holding_years)
 
-        # IRR estimate (simplified: uses MOIC and holding period)
+        # IRR estimate
         irr = self._estimate_irr(moic, holding_years)
 
         # AI-Readiness attribution
@@ -256,11 +228,7 @@ class InvestmentTracker:
         return roi
 
     def calculate_portfolio_roi(self, fund_id: str) -> PortfolioROISummary:
-        """Calculate aggregated portfolio-level ROI.
-
-        Raises:
-            ValueError: If no investments recorded.
-        """
+        """Calculate aggregated portfolio-level ROI."""
         if not self._investments:
             raise ValueError("No investments recorded")
 
@@ -334,14 +302,7 @@ class InvestmentTracker:
     async def get_ai_value_attribution(
         self, company_id: str
     ) -> Dict[str, float]:
-        """Get detailed AI-readiness value attribution for a company.
-
-        Uses AssessmentHistoryService (Task 9.4) to pull trend data
-        for richer attribution analysis.
-
-        Returns:
-            Dict with attribution breakdown.
-        """
+        """Get detailed AI-readiness value attribution for a company."""
         if company_id not in self._investments:
             raise KeyError(f"Investment not found: {company_id}")
 
@@ -392,11 +353,7 @@ class InvestmentTracker:
         entry_ev: float,
         current_ev: float,
     ) -> tuple:
-        """Calculate AI-attributed value creation.
-
-        Returns:
-            (ai_attribution_pct, ai_attributed_value_mm)
-        """
+        """Calculate AI-attributed value creation."""
         value_created = current_ev - entry_ev
 
         # No value created or AI scores declined → no AI attribution
@@ -406,7 +363,7 @@ class InvestmentTracker:
         # Sector-specific base coefficient
         base_coeff = SECTOR_AI_COEFFICIENTS.get(sector, 0.15)
 
-        # Normalized delta: what fraction of possible improvement was achieved
+        # Normalized delta
         max_possible = 100.0 - entry_org_air
         if max_possible <= 0:
             normalized_delta = 1.0
@@ -433,10 +390,7 @@ class InvestmentTracker:
 
     @staticmethod
     def _estimate_irr(moic: float, years: float) -> float:
-        """Estimate IRR using simplified MOIC-based approximation.
-
-        For a single cash-flow investment: IRR ≈ MOIC^(1/n) - 1
-        """
+        """Estimate IRR using simplified MOIC-based approximation."""
         if moic <= 0 or years <= 0:
             return -100.0 if moic <= 0 and years > 0 else 0.0
         try:

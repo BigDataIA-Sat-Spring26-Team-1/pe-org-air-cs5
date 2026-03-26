@@ -80,7 +80,7 @@ class VectorStore:
         ids, contents, metadatas = [], [], []
 
         for e in evidence_list:
-            # Determine mapping if dimension_mapper is provided (Teammate B's work)
+            # Determine mapping if dimension_mapper is provided
             primary_dim = "unknown"
             if dimension_mapper:
                 try:
@@ -94,7 +94,7 @@ class VectorStore:
             ids.append(e.evidence_id)
             contents.append(e.content)
             
-            # Metadata schema follows CS4 PDF Page 15
+            # Metadata schema follows evidence standards
             metadata = {
                 "company_id": e.company_id,
                 "source_type": e.source_type.value,
@@ -106,7 +106,7 @@ class VectorStore:
             }
             metadatas.append(metadata)
 
-        # Generate embeddings using LiteLLM (Task 6.1 verified)
+        # Generate embeddings using LiteLLM
         logger.info("generating_embeddings", count=len(contents))
         embeddings = await self._get_embeddings(contents)
 
@@ -130,7 +130,7 @@ class VectorStore:
         min_confidence: float = 0.0
     ) -> List[SearchResult]:
         """Search with metadata filters."""
-        # Build ChromaDB 'where' clause (from CS4 PDF Page 16)
+        # Build ChromaDB 'where' clause with standard filters
         where_params = []
         
         if company_id:

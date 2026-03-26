@@ -1,8 +1,5 @@
 """
-Unified Portfolio Data Service - Integrates CS1, CS2, CS3, CS4.
-
-This is the ONLY way to get data for agents and dashboards.
-ALL data comes from YOUR CS1-CS4 implementations.
+Unified Portfolio Data Service.
 """
 from typing import List, Dict, Optional
 from dataclasses import dataclass
@@ -55,7 +52,7 @@ class PortfolioDataService:
         fund_id: str,
     ) -> List[PortfolioCompanyView]:
         """Load portfolio from CS1, scores from CS3, evidence from CS2."""
-        # Call YOUR CS1 API
+        # Fetch company profile from metadata service
         companies = await self.cs1.get_portfolio_companies(fund_id)
 
         views = []
@@ -84,7 +81,7 @@ class PortfolioDataService:
                 if ci_list and len(ci_list) >= 2:
                     ci = (ci_list[0], ci_list[1])
                     
-            # Call YOUR CS2 API
+            # Fetch specific evidence details
             evidence = await self.cs2.get_evidence(ticker=company.ticker)
 
             entry_score = await self._get_entry_score(company.company_id)
@@ -108,9 +105,33 @@ class PortfolioDataService:
         return views
 
     async def _get_entry_score(self, company_id: str) -> float:
-        """Get entry score from CS1 portfolio tracking."""
-        # In production, query CS1's portfolio_positions table
-        return 45.0  # Placeholder
+        """
+        Retrieve the entry Org-AI-R score for a company.
+
+        Strategy: fetch all assessments from CS3 for this company, sort
+        ascending by creation date, and return the org_air_score of the
+        oldest record (i.e. the first assessment taken at portfolio entry).
+        Returns 0.0 if no assessments exist yet.
+        """
+        try:
+            data = await self.cs3.list_assessments(
+                company_id=company_id,
+                page_size=100,
+            )
+            items = data.get("items", [])
+            if not items:
+                return 0.0
+
+            # Sort oldest-first and take the first record as the entry baseline
+            def _parse_ts(item: dict) -> str:
+                return item.get("created_at") or item.get("assessment_date") or ""
+
+            sorted_items = sorted(items, key=_parse_ts)
+            return float(sorted_items[0].get("org_air_score") or 0.0)
+
+        except Exception:
+            logger.warning("entry_score_unavailable", company_id=company_id)
+            return 0.0
 
 # Singleton instance
 portfolio_data_service = PortfolioDataService()

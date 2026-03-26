@@ -5,7 +5,7 @@ class AssessmentType(str, Enum):
     DUE_DILIGENCE = "due_diligence"  # Deep dive with internal access
     QUARTERLY = "quarterly"          # Regular portfolio monitoring
     EXIT_PREP = "exit_prep"          # Pre-exit assessment
-    INTEGRATED_CS3 = "INTEGRATED_CS3" # Lab 6 Integrated Scoring
+    INTEGRATED_CS3 = "INTEGRATED_CS3" # Integrated Scoring
 
 class AssessmentStatus(str, Enum):
     DRAFT = "draft"

@@ -139,6 +139,8 @@ app.include_router(testing.router, prefix="/api/v1/system", tags=["System Testin
 app.include_router(integration.router, prefix="/api/v1", tags=["Integration"])
 app.include_router(rag.router, prefix="/api/v1/rag", tags=["RAG"])
 app.include_router(justify.router, prefix="/api/v1/rag", tags=["RAG"])
+from app.routers import agent_ui
+app.include_router(agent_ui.router, prefix="/api/v1")
 
 @app.get("/")
 async def root():

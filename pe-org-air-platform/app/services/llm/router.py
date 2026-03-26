@@ -62,7 +62,7 @@ class ModelRouter:
         last_exception = None
         for model in models_to_try:
             try:
-                # Task 7.1 Budget Tracker
+                # Budget Tracking
                 if self.daily_budget.spent_usd >= self.daily_budget.limit_usd:
                     logger.critical("LLM_BUDGET_EXCEEDED", spent=str(self.daily_budget.spent_usd))
                     raise RuntimeError("Daily LLM budget exceeded")

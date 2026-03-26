@@ -21,7 +21,7 @@ class TalentConcentrationCalculator:
     """
     Calculate talent concentration (key-person risk).
     
-    Formula (Task 5.0e):
+    Formula:
     TC = 0.4 * leadership_ratio + 
          0.3 * team_size_factor + 
          0.2 * skill_concentration + 

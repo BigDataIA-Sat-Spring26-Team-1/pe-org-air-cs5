@@ -51,7 +51,7 @@ class HybridRetriever:
         tokenized_corpus = [c.lower().split() for c in self._corpus]
         self._bm25 = BM25Okapi(tokenized_corpus)
         
-        # 2. Dense Indexing (Task 6.1 verified)
+        # 2. Dense Indexing
         await self.vector_store.upsert_documents(documents)
         
         logger.info("hybrid_index_updated", count=len(documents))
@@ -67,7 +67,7 @@ class HybridRetriever:
         """Execute hybrid search using RRF Fusion with optional HyDE enhancement."""
         search_query = query
         
-        # 1. Option HyDE Enhancement (Task 8.1)
+        # 1. Option HyDE Enhancement
         if use_hyde and hasattr(self, 'hyde_generator') and self.hyde_generator:
             search_query = await self.hyde_generator.generate_hypothetical_document(query)
             logger.info("hyde_enhanced_query_used", original=query[:50])
