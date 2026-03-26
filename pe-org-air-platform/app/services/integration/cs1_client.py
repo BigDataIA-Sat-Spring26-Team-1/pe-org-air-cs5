@@ -5,6 +5,7 @@ Wraps the ``/api/v1/companies`` and ``/api/v1/industries`` REST endpoints
 so the RAG engine can fetch company metadata without importing backend internals.
 """
 
+import asyncio
 from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
 from enum import Enum
@@ -79,17 +80,39 @@ class CS1Client(BaseSDKClient):
 
     async def get_portfolio_companies(self, fund_id: str) -> List[Company]:
         """``GET /api/v1/portfolios/{fund_id}/companies`` or equivalent"""
-        # Mocking or fetching from the live endpoint, using list_companies
-        data = await self.list_companies()
+        data, industries_raw = await asyncio.gather(
+            self.list_companies(),
+            self.list_industries(),
+        )
+
+        # Build industry_id → Sector enum from the industries table
+        # INDUSTRIES table has: id, name, sector (e.g. "Technology", "Financial")
+        _SECTOR_MAP = {
+            "technology":  Sector.TECHNOLOGY,
+            "financial":   Sector.FINANCIAL_SERVICES,
+            "healthcare":  Sector.HEALTHCARE,
+            "consumer":    Sector.RETAIL,
+            "retail":      Sector.RETAIL,
+            "industrials": Sector.MANUFACTURING,
+            "manufacturing": Sector.MANUFACTURING,
+            "energy":      Sector.ENERGY,
+        }
+        industry_to_sector: Dict[str, Sector] = {}
+        industry_list = industries_raw if isinstance(industries_raw, list) else industries_raw.get("items", [])
+        for ind in industry_list:
+            raw_sector = (ind.get("sector") or "technology").lower()
+            industry_to_sector[ind["id"]] = _SECTOR_MAP.get(raw_sector, Sector.TECHNOLOGY)
+
         items = data.get("items", [])
         companies = []
         for c in items:
-            sec_str = Sector.TECHNOLOGY
+            industry_id = c.get("industry_id")
+            sector = industry_to_sector.get(industry_id, Sector.TECHNOLOGY)
             companies.append(Company(
                 company_id=c.get("id", c["ticker"]),
                 ticker=c["ticker"],
                 name=c["name"],
-                sector=sec_str,
+                sector=sector,
                 employee_count=c.get("employees", 1000),
                 revenue_mm=c.get("revenue", 100.0)
             ))

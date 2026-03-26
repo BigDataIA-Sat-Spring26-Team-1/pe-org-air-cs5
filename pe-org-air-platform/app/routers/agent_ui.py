@@ -1,13 +1,15 @@
 from fastapi import APIRouter, HTTPException, Query
+from fastapi.responses import FileResponse
 from typing import List, Dict, Any
 import structlog
+import os
 from pydantic import BaseModel
 from datetime import datetime
 
 # Services
 from app.services.integration.portfolio_data_service import portfolio_data_service, PortfolioCompanyView
 from app.services.analytics.fund_air import fund_air_calculator
-from app.services.tracking.assessment_history import history_tracker, create_history_service
+from app.services.tracking.assessment_history import create_history_service
 from app.agents.supervisor import dd_graph
 from app.agents.state import DueDiligenceState
 
@@ -15,7 +17,7 @@ router = APIRouter(prefix="/agent-ui", tags=["Agent UI Integration"])
 logger = structlog.get_logger()
 
 # Initialise history service using shared clients
-history_service = create_history_service(portfolio_data_service.cs1, portfolio_data_service.cs3)
+history_service = create_history_service(portfolio_data_service.cs1, portfolio_data_service.cs3, portfolio_data_service.cs2)
 
 class AgentTriggerRequest(BaseModel):
     company_id: str
@@ -94,4 +96,44 @@ async def get_company_history(company_id: str):
     try:
         return await history_service.get_history(company_id)
     except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/generate-ic-memo/{company_id}")
+async def generate_ic_memo_endpoint(company_id: str, assessment_type: str = "full"):
+    """Generate IC Memo Word document for a company and return it as a download."""
+    try:
+        from app.agents.bonus.ic_memo_generator import generate_ic_memo
+        output_path = await generate_ic_memo(company_id, assessment_type)
+        if not os.path.exists(output_path):
+            raise HTTPException(status_code=500, detail="File generation failed")
+        return FileResponse(
+            path=output_path,
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            filename=f"ic_memo_{company_id}.docx",
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("ic_memo_generation_failed", company_id=company_id, error=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/generate-lp-letter/{company_id}")
+async def generate_lp_letter_endpoint(company_id: str, assessment_type: str = "full"):
+    """Generate LP Letter Word document for a company and return it as a download."""
+    try:
+        from app.agents.bonus.lp_letter_generator import generate_lp_letter
+        output_path = await generate_lp_letter(company_id, assessment_type)
+        if not os.path.exists(output_path):
+            raise HTTPException(status_code=500, detail="File generation failed")
+        return FileResponse(
+            path=output_path,
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            filename=f"lp_letter_{company_id}.docx",
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("lp_letter_generation_failed", company_id=company_id, error=str(e))
         raise HTTPException(status_code=500, detail=str(e))

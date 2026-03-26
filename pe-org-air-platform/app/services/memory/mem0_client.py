@@ -10,6 +10,7 @@ Falls back gracefully (empty results / silent writes) if Mem0 is unavailable,
 so the rest of the workflow is never blocked by a memory failure.
 """
 import asyncio
+import os
 from functools import partial
 from typing import List, Dict, Any
 
@@ -25,7 +26,32 @@ def _get_mem0():
     global _mem0_instance
     if _mem0_instance is None:
         from mem0 import Memory
-        _mem0_instance = Memory()
+        # Use ChromaDB (already in the container) so no qdrant server is needed.
+        # Persist to the same data directory as the RAG vector store.
+        config = {
+            "vector_store": {
+                "provider": "chroma",
+                "config": {
+                    "collection_name": "pe_orgair_agent_memory",
+                    "path": "/opt/airflow/app_code/data/mem0",
+                },
+            },
+            "llm": {
+                "provider": "openai",
+                "config": {
+                    "model": "gpt-4o-mini",
+                    "api_key": os.getenv("OPENAI_API_KEY"),
+                },
+            },
+            "embedder": {
+                "provider": "openai",
+                "config": {
+                    "model": "text-embedding-3-small",
+                    "api_key": os.getenv("OPENAI_API_KEY"),
+                },
+            },
+        }
+        _mem0_instance = Memory.from_config(config)
     return _mem0_instance
 
 

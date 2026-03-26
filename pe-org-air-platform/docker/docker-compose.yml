@@ -4,7 +4,7 @@ x-airflow-common:
   &airflow-common
   build:
     context: ..
-    dockerfile: docker/Dockerfile
+    dockerfile: docker/Dockerfile.airflow
   env_file:
     - ../.env
   environment:
@@ -139,6 +139,9 @@ services:
   # ----------------------------------------------------------------
   api:
     <<: *airflow-common
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
     # Override entrypoint to bypass Airflow's wrapper
     entrypoint: []
     # Override command to run FastAPI
@@ -149,6 +152,7 @@ services:
       <<: *airflow-common-env
       # Point internal agents at the MCP server container
       MCP_SERVER_URL: "http://mcp-server:3001"
+      PYTHONPATH: "/opt/airflow:/opt/airflow/app:/app:/opt/airflow/project_root"
     volumes:
       - ../app:/opt/airflow/app
       - ../logs:/opt/airflow/logs
@@ -172,6 +176,9 @@ services:
   # ----------------------------------------------------------------
   mcp-server:
     <<: *airflow-common
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
     entrypoint: []
     command: python -m app.mcp.server
     ports:

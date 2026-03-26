@@ -289,7 +289,112 @@ const CATEGORIES: Category[] = [
         endpoints: [
             { tag: "Health", name: "Health Check", method: 'GET', path: '/health', description: "Service status monitoring" },
         ]
-    }
+    },
+    {
+        name: "Agentic Workflow (CS5)",
+        tag: "AgentUI",
+        icon: <Brain size={16} />,
+        endpoints: [
+            {
+                tag: "AgentUI",
+                name: "Portfolio Dashboard",
+                method: 'GET',
+                path: '/api/v1/agent-ui/portfolio',
+                description: "Fetch live portfolio data — all companies with Org-AI-R, V^R, H^R scores",
+                queryParams: [{ name: "fund_id", type: "string", required: false, default: "growth_fund_v", description: "Fund identifier" }],
+            },
+            {
+                tag: "AgentUI",
+                name: "Fund-AI-R Score",
+                method: 'GET',
+                path: '/api/v1/agent-ui/fund-air',
+                description: "EV-weighted Fund-AI-R metric across the whole portfolio",
+                queryParams: [{ name: "fund_id", type: "string", required: false, default: "growth_fund_v", description: "Fund identifier" }],
+            },
+            {
+                tag: "AgentUI",
+                name: "Trigger Due Diligence",
+                method: 'POST',
+                path: '/api/v1/agent-ui/trigger-due-diligence',
+                description: "Run the full LangGraph agentic workflow: SEC → Scoring → Evidence → Value Creation. HITL gate fires when score is outside [40, 85] or EBITDA impact > 5%.",
+                body: {
+                    company_id: "NVDA",
+                    assessment_type: "full",
+                    requested_by: "analyst",
+                    target_org_air: 75.0,
+                },
+            },
+            {
+                tag: "AgentUI",
+                name: "Assessment History",
+                method: 'GET',
+                path: '/api/v1/agent-ui/history/{company_id}',
+                description: "Retrieve prior due diligence runs for a company (uses CS3 + Snowflake persistence)",
+            },
+        ],
+    },
+    {
+        name: "MCP Tools (CS5)",
+        tag: "MCPTools",
+        icon: <Terminal size={16} />,
+        endpoints: [
+            {
+                tag: "MCPTools",
+                name: "MCP Health",
+                method: 'GET',
+                path: '/mcp/health',
+                description: "Liveness check for the MCP server (SSE transport, port 3001)",
+            },
+            {
+                tag: "MCPTools",
+                name: "Portfolio Summary Tool",
+                method: 'POST',
+                path: '/mcp/tools/get_portfolio_summary',
+                description: "MCP tool: fetch all portfolio companies with scores from CS1–CS3",
+                body: { fund_id: "growth_fund_v" },
+            },
+            {
+                tag: "MCPTools",
+                name: "Calculate Org-AI-R Tool",
+                method: 'POST',
+                path: '/mcp/tools/calculate_org_air_score',
+                description: "MCP tool: pull the latest Org-AI-R, V^R and H^R scores for a company from CS3",
+                body: { company_id: "NVDA" },
+            },
+            {
+                tag: "MCPTools",
+                name: "Company Evidence Tool",
+                method: 'POST',
+                path: '/mcp/tools/get_company_evidence',
+                description: "MCP tool: fetch granular evidence signals (patents, SEC filings, job posts) from CS2",
+                body: { company_id: "NVDA" },
+            },
+            {
+                tag: "MCPTools",
+                name: "Generate Justification Tool",
+                method: 'POST',
+                path: '/mcp/tools/generate_justification',
+                description: "MCP tool: CS4 RAG-powered justification for a single Org-AI-R dimension",
+                body: { company_id: "NVDA", dimension: "data_infrastructure" },
+            },
+            {
+                tag: "MCPTools",
+                name: "Project EBITDA Impact Tool",
+                method: 'POST',
+                path: '/mcp/tools/project_ebitda_impact',
+                description: "MCP tool: v2.0 gamma-parameter EBITDA projection across base, conservative and optimistic scenarios",
+                body: { company_id: "NVDA", entry_score: 45, target_score: 75, h_r_score: 60 },
+            },
+            {
+                tag: "MCPTools",
+                name: "Gap Analysis Tool",
+                method: 'POST',
+                path: '/mcp/tools/run_gap_analysis',
+                description: "MCP tool: dimension-level gap analysis with prioritised 100-day initiatives",
+                body: { company_id: "NVDA", target_org_air: 75 },
+            },
+        ],
+    },
 ];
 
 const ALL_ENDPOINTS: any[] = CATEGORIES.flatMap(c => c.endpoints);

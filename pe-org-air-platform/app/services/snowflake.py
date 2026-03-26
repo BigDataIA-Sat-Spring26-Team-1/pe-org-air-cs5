@@ -555,6 +555,15 @@ class SnowflakeService:
         params.extend([limit, offset])
         return await self.fetch_all(query, tuple(params))
 
+    async def count_signal_evidence(self, company_id: str, category: Optional[str] = None) -> int:
+        query = "SELECT COUNT(*) AS cnt FROM signal_evidence WHERE company_id = %s"
+        params: list = [company_id]
+        if category:
+            query += " AND category = %s"
+            params.append(category.value if hasattr(category, "value") else category)
+        rows = await self.fetch_all(query, tuple(params))
+        return int(rows[0]["cnt"]) if rows else 0
+
     async def fetch_job_descriptions_for_talent(self, company_id: str, limit: int = 500) -> List[Dict[str, str]]:
         """Fetch job titles and descriptions specifically for talent concentration analysis."""
         query = """

@@ -14,10 +14,10 @@ class CS4Client(BaseSDKClient):
         self, company_id: str, dimension: Dimension
     ) -> ScoreJustification:
         """``POST /api/v1/justify``"""
-        payload = {"company_id": company_id}
-        # To call justify properly, could be POST /api/v1/justify
-        # Or you can do it specifically via RAG if needed.
-        data = await self._post("/api/v1/justify", json=payload)
+        # /api/v1/rag/justify expects {"ticker": ..., "top_k": ...}
+        # company_id is used as ticker throughout this codebase (e.g. "NVDA")
+        payload = {"ticker": company_id, "top_k": 5}
+        data = await self._post("/api/v1/rag/justify", payload)
         # Parse output to return the ScoreJustification matching the dimension
         # Normally this returns an ICMeetingPackage.
         # So we'll fetch just what we need.

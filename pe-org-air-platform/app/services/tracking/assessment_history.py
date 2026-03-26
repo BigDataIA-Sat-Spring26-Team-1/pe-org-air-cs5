@@ -7,6 +7,7 @@ import uuid
 import structlog
 
 from app.services.integration.cs1_client import CS1Client
+from app.services.integration.cs2_client import CS2Client
 from app.services.integration.cs3_client import CS3Client
 
 logger = structlog.get_logger()
@@ -59,8 +60,9 @@ class AssessmentTrend:
 class AssessmentHistoryService:
     """Pulls scores from CS3 and persists snapshots to Snowflake."""
 
-    def __init__(self, cs1_client: CS1Client, cs3_client: CS3Client):
+    def __init__(self, cs1_client: CS1Client, cs3_client: CS3Client, cs2_client: Optional[CS2Client] = None):
         self.cs1 = cs1_client
+        self.cs2 = cs2_client
         self.cs3 = cs3_client
         self._cache: Dict[str, List[AssessmentSnapshot]] = {}
 
@@ -96,9 +98,10 @@ class AssessmentHistoryService:
             return snapshot
 
         latest = items[0]
-        ci_raw = latest.get("confidence_interval")
-        if isinstance(ci_raw, (list, tuple)) and len(ci_raw) >= 2:
-            ci = (float(ci_raw[0]), float(ci_raw[1]))
+        ci_lower = latest.get("confidence_lower")
+        ci_upper = latest.get("confidence_upper")
+        if ci_lower is not None and ci_upper is not None:
+            ci = (float(ci_lower), float(ci_upper))
         else:
             ci = (0.0, 0.0)
 
@@ -179,7 +182,7 @@ class AssessmentHistoryService:
         try:
             data = await self.cs3.list_assessments(
                 company_id=company_id,
-                page_size=500,
+                page_size=100,
             )
             items = data.get("items", [])
             cutoff = _now_utc() - timedelta(days=days)
@@ -192,14 +195,12 @@ class AssessmentHistoryService:
                     ts = _now_utc()
                 if ts < cutoff:
                     continue
-                ci_raw = item.get("confidence_interval")
-                if isinstance(ci_raw, (list, tuple)) and len(ci_raw) >= 2:
-                    ci = (float(ci_raw[0]), float(ci_raw[1]))
+                ci_lower = item.get("confidence_lower")
+                ci_upper = item.get("confidence_upper")
+                if ci_lower is not None and ci_upper is not None:
+                    ci = (float(ci_lower), float(ci_upper))
                 else:
-                    ci = (
-                        float(item.get("confidence_lower") or 0),
-                        float(item.get("confidence_upper") or 0),
-                    )
+                    ci = (0.0, 0.0)
                 snapshots.append(AssessmentSnapshot(
                     company_id=company_id,
                     timestamp=ts,
@@ -213,6 +214,17 @@ class AssessmentHistoryService:
                     assessor_id=item.get("primary_assessor", "system"),
                     assessment_type=item.get("assessment_type", "full"),
                 ))
+            # Fetch total evidence count via COUNT(*) — no row data transferred.
+            # SIGNAL_EVIDENCE has no per-date count; current total is the best proxy.
+            actual_evidence_count = 0
+            if self.cs2:
+                try:
+                    actual_evidence_count = await self.cs2.count_evidence(ticker=company_id)
+                except Exception:
+                    pass
+            for snap in snapshots:
+                snap.evidence_count = actual_evidence_count
+
             self._cache[company_id] = snapshots
             return snapshots
         except Exception as exc:
@@ -275,5 +287,5 @@ class AssessmentHistoryService:
         )
 
 
-def create_history_service(cs1: CS1Client, cs3: CS3Client) -> AssessmentHistoryService:
-    return AssessmentHistoryService(cs1, cs3)
+def create_history_service(cs1: CS1Client, cs3: CS3Client, cs2: Optional[CS2Client] = None) -> AssessmentHistoryService:
+    return AssessmentHistoryService(cs1, cs3, cs2_client=cs2)
