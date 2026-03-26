@@ -340,8 +340,9 @@ async def list_resources() -> list[Resource]:
 
 
 @mcp_server.read_resource()
-async def read_resource(uri: str) -> str:
-    if uri == "orgair://parameters/v2.0":
+async def read_resource(uri) -> str:
+    uri_str = str(uri)
+    if uri_str == "orgair://parameters/v2.0":
         return json.dumps({
             "version": "2.0",
             "alpha": 0.60,
@@ -351,7 +352,7 @@ async def read_resource(uri: str) -> str:
             "gamma_2": 0.025,
             "gamma_3": 0.01,
         })
-    elif uri == "orgair://sectors":
+    elif uri_str == "orgair://sectors":
         return json.dumps({
             "technology": {"h_r_base": 85, "weight_talent": 0.18},
             "healthcare": {"h_r_base": 75, "weight_governance": 0.18},
