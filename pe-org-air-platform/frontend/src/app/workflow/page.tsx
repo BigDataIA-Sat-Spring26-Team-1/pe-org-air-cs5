@@ -32,7 +32,7 @@ interface HITLData {
 }
 
 interface WorkflowResult {
-  status?: "completed" | "pending_hitl";
+  status?: "completed" | "pending_hitl" | "rejected";
   thread_id?: string;
   company_id: string;
   assessment_type?: string;
@@ -183,7 +183,7 @@ export default function WorkflowPage() {
       }
 
       const finalResult: WorkflowResult = await res.json();
-      setStageIndex(STAGES.length);
+      setStageIndex(finalResult.status === "rejected" ? 4 : STAGES.length);
       setResult(finalResult);
       setHitlPending(false);
     } catch (e: unknown) {
@@ -221,6 +221,7 @@ export default function WorkflowPage() {
   const scoring = result?.scoring_result;
   const gaps: Gap[] = result?.value_creation_plan?.gap_analysis?.gaps ?? [];
   const isCompleted = result?.status === "completed";
+  const isRejected  = result?.status === "rejected";
 
   return (
     <div className="p-8 max-w-5xl mx-auto">
@@ -438,6 +439,22 @@ export default function WorkflowPage() {
               <p className="text-xs text-slate-600 text-center">
                 The workflow graph is paused in LangGraph&#39;s MemorySaver. Your decision will resume it from exactly where it stopped.
               </p>
+            </div>
+          )}
+
+          {/* ── Rejection Panel ───────────────────────────────────────────── */}
+          {isRejected && (
+            <div className="bg-red-900/10 border border-red-700/40 rounded-xl p-6 flex gap-4">
+              <XCircle size={22} className="text-red-400 shrink-0 mt-0.5" />
+              <div>
+                <h2 className="text-base font-bold text-red-300 mb-1">Workflow Rejected</h2>
+                <p className="text-sm text-red-400">
+                  This due diligence assessment was rejected by{" "}
+                  <span className="font-semibold">{result?.approved_by || "analyst"}</span>
+                  {result?.approval_reason && ` — ${result.approval_reason}`}.
+                  The workflow has been terminated and no further agents will run.
+                </p>
+              </div>
             </div>
           )}
 

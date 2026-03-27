@@ -116,7 +116,7 @@ class SECAnalysisAgent:
 
 class ScoringAgent:
     def __init__(self):
-        self.llm = ChatAnthropic(model="claude-sonnet-4-20250514", temperature=0.2)
+        self.llm = ChatAnthropic(model="claude-sonnet-4-6", temperature=0.2)
         self.tools = [get_org_air_score, get_justification]
 
     async def calculate(self, state: DueDiligenceState) -> Dict[str, Any]:

@@ -254,6 +254,7 @@ async def submit_hitl_decision(thread_id: str, body: HITLDecisionRequest):
 
         _track_workflow_metrics(result, elapsed)
 
+        is_rejected = result.get("approval_status") == "rejected"
         HITL_APPROVALS.labels(
             reason=(result.get("approval_reason") or "score_threshold")[:40],
             decision="approved" if body.approved else "rejected",
@@ -266,7 +267,8 @@ async def submit_hitl_decision(thread_id: str, body: HITLDecisionRequest):
             reviewed_by=body.reviewed_by,
         )
 
-        return {"status": "completed", "thread_id": thread_id, **result}
+        final_status = "rejected" if is_rejected else "completed"
+        return {"status": final_status, "thread_id": thread_id, **result}
 
     except Exception as e:
         # Put the entry back so it can be retried

@@ -15,7 +15,10 @@ logger = structlog.get_logger()
 
 
 async def supervisor_node(state: DueDiligenceState) -> Dict[str, Any]:
-    if state.get("requires_approval") and state.get("approval_status") == "pending":
+    # Rejection is a terminal state — stop immediately
+    if state.get("approval_status") == "rejected":
+        return {"next_agent": "rejected"}
+    elif state.get("requires_approval") and state.get("approval_status") == "pending":
         return {"next_agent": "hitl_approval"}
     elif not state.get("sec_analysis"):
         return {"next_agent": "sec_analyst"}
@@ -101,6 +104,29 @@ async def hitl_approval_node(state: DueDiligenceState) -> Dict[str, Any]:
     }
 
 
+async def rejected_node(state: DueDiligenceState) -> Dict[str, Any]:
+    approved_by = state.get("approved_by", "analyst")
+    logger.warning(
+        "workflow_rejected",
+        company_id=state["company_id"],
+        reviewed_by=approved_by,
+    )
+    return {
+        "completed_at": datetime.utcnow(),
+        "messages": [
+            {
+                "role": "system",
+                "content": (
+                    f"Due diligence REJECTED for {state['company_id']} by {approved_by}. "
+                    "Workflow terminated."
+                ),
+                "agent_name": "supervisor",
+                "timestamp": datetime.utcnow(),
+            }
+        ],
+    }
+
+
 async def complete_node(state: DueDiligenceState) -> Dict[str, Any]:
     return {
         "completed_at": datetime.utcnow(),
@@ -124,6 +150,7 @@ def create_due_diligence_graph():
     workflow.add_node("evidence_agent", evidence_node)
     workflow.add_node("value_creator", value_creator_node)
     workflow.add_node("hitl_approval", hitl_approval_node)
+    workflow.add_node("rejected", rejected_node)
     workflow.add_node("complete", complete_node)
 
     workflow.add_conditional_edges(
@@ -135,6 +162,7 @@ def create_due_diligence_graph():
             "evidence_agent": "evidence_agent",
             "value_creator": "value_creator",
             "hitl_approval": "hitl_approval",
+            "rejected": "rejected",
             "complete": "complete",
         },
     )
@@ -143,6 +171,7 @@ def create_due_diligence_graph():
         workflow.add_edge(node, "supervisor")
 
     workflow.add_edge("hitl_approval", "supervisor")
+    workflow.add_edge("rejected", END)
     workflow.add_edge("complete", END)
     workflow.set_entry_point("supervisor")
 

@@ -15,14 +15,14 @@ logger = structlog.get_logger()
 MODEL_ROUTING: Dict[TaskType, ModelConfig] = {
     TaskType.EVIDENCE_EXTRACTION: ModelConfig(
         primary="openai/gpt-4o-2024-08-06",
-        fallbacks=["anthropic/claude-3-5-sonnet-20240620"],
+        fallbacks=["anthropic/claude-3-5-sonnet-20241022"],
         temperature=0.3,
         max_tokens=4000,
         cost_per_1k_tokens=0.015,
     ),
     TaskType.JUSTIFICATION_GENERATION: ModelConfig(
         primary="openai/gpt-4o-2024-08-06",
-        fallbacks=["anthropic/claude-3-5-sonnet-20240620"],
+        fallbacks=["anthropic/claude-3-5-sonnet-20241022"],
         temperature=0.2,
         max_tokens=2000,
         cost_per_1k_tokens=0.012,
