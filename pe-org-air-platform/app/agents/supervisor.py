@@ -46,18 +46,54 @@ async def value_creator_node(state: DueDiligenceState) -> Dict[str, Any]:
 
 
 async def hitl_approval_node(state: DueDiligenceState) -> Dict[str, Any]:
+    """
+    Real HITL gate using LangGraph's interrupt() mechanism.
+
+    Execution pauses here and control returns to the API caller with the
+    interrupt payload.  The graph stays alive in MemorySaver.  When the
+    analyst POSTs a decision, the caller resumes via:
+
+        await dd_graph.ainvoke(Command(resume={...}), config)
+
+    and this node receives the returned value and continues normally.
+    """
+    from langgraph.types import interrupt
+
     logger.warning(
         "hitl_approval_required",
         company_id=state["company_id"],
         reason=state.get("approval_reason"),
     )
+
+    # Pause execution — returns the decision dict supplied by the reviewer
+    decision = interrupt({
+        "company_id": state["company_id"],
+        "org_air": (state.get("scoring_result") or {}).get("org_air"),
+        "approval_reason": state.get("approval_reason"),
+        "message": "Human review required. Approve or reject this due-diligence assessment.",
+    })
+
+    approved = decision.get("approved", False)
+    reviewed_by = decision.get("reviewed_by", "analyst")
+    notes = decision.get("notes", "")
+
+    logger.info(
+        "hitl_decision_received",
+        company_id=state["company_id"],
+        approved=approved,
+        reviewed_by=reviewed_by,
+    )
+
     return {
-        "approval_status": "approved",
-        "approved_by": "exercise_auto_approve",
+        "approval_status": "approved" if approved else "rejected",
+        "approved_by": reviewed_by,
         "messages": [
             {
                 "role": "system",
-                "content": f"HITL approval granted: {state.get('approval_reason')}",
+                "content": (
+                    f"HITL {'approved' if approved else 'REJECTED'} by {reviewed_by}."
+                    + (f" Notes: {notes}" if notes else "")
+                ),
                 "agent_name": "hitl",
                 "timestamp": datetime.utcnow(),
             }

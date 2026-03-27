@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import FileResponse
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import structlog
 import os
 import time
@@ -18,6 +18,11 @@ from app.agents.state import DueDiligenceState
 
 router = APIRouter(prefix="/agent-ui", tags=["Agent UI Integration"])
 logger = structlog.get_logger()
+
+# ── In-memory HITL pending store ──────────────────────────────────────────────
+# Maps thread_id → {config, company_id, hitl_data, created_at}
+# MemorySaver keeps the paused graph state alive for the same process lifetime.
+_pending_hitl: Dict[str, Dict[str, Any]] = {}
 
 
 def _track_workflow_metrics(result: dict, elapsed_seconds: float) -> None:
@@ -58,6 +63,12 @@ class AgentTriggerRequest(BaseModel):
     requested_by: str = "analyst"
     target_org_air: float = 75.0
 
+
+class HITLDecisionRequest(BaseModel):
+    approved: bool
+    reviewed_by: str = "analyst"
+    notes: Optional[str] = ""
+
 @router.get("/portfolio", response_model=List[PortfolioCompanyView])
 async def get_portfolio_dashboard_view(fund_id: str = "growth_fund_v"):
     """Fetch live portfolio data for the dashboard."""
@@ -94,8 +105,20 @@ async def get_fund_air_metrics(fund_id: str = "growth_fund_v"):
 
 @router.post("/trigger-due-diligence")
 async def trigger_agentic_workflow(request: AgentTriggerRequest):
-    """Trigger agentic due diligence workflow."""
+    """
+    Trigger agentic due diligence workflow.
+
+    Returns one of two shapes:
+      {"status": "completed",    "thread_id": ..., ...full result...}
+      {"status": "pending_hitl", "thread_id": ..., "hitl_data": {...}}
+
+    When "pending_hitl" is returned the graph is paused at the HITL node.
+    Call POST /agent-ui/hitl/{thread_id}/decision to resume it.
+    """
     try:
+        thread_id = f"dd-{request.company_id}-{datetime.utcnow().strftime('%Y%m%dT%H%M%S')}"
+        config = {"configurable": {"thread_id": thread_id}}
+
         initial_state: DueDiligenceState = {
             "company_id": request.company_id,
             "assessment_type": request.assessment_type,
@@ -116,17 +139,139 @@ async def trigger_agentic_workflow(request: AgentTriggerRequest):
             "total_tokens": 0,
             "error": None,
         }
-        config = {"configurable": {"thread_id": f"dd-{request.company_id}-{datetime.utcnow().isoformat()}"}}
+
         t_start = time.perf_counter()
         result = await dd_graph.ainvoke(initial_state, config)
         elapsed = time.perf_counter() - t_start
 
-        # Track metrics for each completed agent stage
+        # Check whether the graph paused at the HITL interrupt or ran to completion
+        graph_state = await dd_graph.aget_state(config)
+        is_interrupted = bool(graph_state.next)  # non-empty → graph still has pending nodes
+
+        if is_interrupted:
+            # Extract the interrupt payload the node sent to the reviewer
+            hitl_data: Dict[str, Any] = {}
+            for task in (graph_state.tasks or []):
+                interrupts = getattr(task, "interrupts", None) or []
+                if interrupts:
+                    hitl_data = interrupts[0].value if hasattr(interrupts[0], "value") else {}
+                    break
+
+            _pending_hitl[thread_id] = {
+                "thread_id": thread_id,
+                "config": config,
+                "company_id": request.company_id,
+                "hitl_data": hitl_data,
+                "created_at": datetime.utcnow().isoformat(),
+                "partial_result": result,
+            }
+
+            logger.info("hitl_interrupt_detected", thread_id=thread_id, company_id=request.company_id)
+            HITL_APPROVALS.labels(
+                reason=(result.get("approval_reason") or "score_threshold")[:40],
+                decision="pending",
+            ).inc()
+
+            return {
+                "status": "pending_hitl",
+                "thread_id": thread_id,
+                "company_id": request.company_id,
+                "hitl_data": hitl_data,
+                # Include partial results so the frontend can show scores already computed
+                "scoring_result": result.get("scoring_result"),
+                "requires_approval": result.get("requires_approval"),
+                "approval_reason": result.get("approval_reason"),
+                "messages": result.get("messages", []),
+            }
+
+        # Graph completed normally — track metrics and return
         _track_workflow_metrics(result, elapsed)
-        return result
+        return {"status": "completed", "thread_id": thread_id, **result}
+
     except Exception as e:
         AGENT_INVOCATIONS.labels(agent_name="due_diligence_workflow", status="error").inc()
         logger.error("workflow_trigger_failed", error=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ── HITL management endpoints ─────────────────────────────────────────────────
+
+@router.get("/hitl/pending")
+async def list_pending_hitl():
+    """List all workflows currently paused at a HITL gate."""
+    return [
+        {
+            "thread_id": v["thread_id"],
+            "company_id": v["company_id"],
+            "hitl_data": v["hitl_data"],
+            "created_at": v["created_at"],
+        }
+        for v in _pending_hitl.values()
+    ]
+
+
+@router.get("/hitl/{thread_id}")
+async def get_hitl_details(thread_id: str):
+    """Return the HITL interrupt payload for a specific paused workflow."""
+    if thread_id not in _pending_hitl:
+        raise HTTPException(status_code=404, detail="Thread not found or already resolved")
+    entry = _pending_hitl[thread_id]
+    return {
+        "thread_id": thread_id,
+        "company_id": entry["company_id"],
+        "hitl_data": entry["hitl_data"],
+        "created_at": entry["created_at"],
+    }
+
+
+@router.post("/hitl/{thread_id}/decision")
+async def submit_hitl_decision(thread_id: str, body: HITLDecisionRequest):
+    """
+    Resume a paused workflow with a human decision.
+
+    The graph's hitl_approval_node receives the decision dict and continues
+    running to completion.  Returns the final workflow result.
+    """
+    if thread_id not in _pending_hitl:
+        raise HTTPException(status_code=404, detail="Thread not found or already resolved")
+
+    entry = _pending_hitl.pop(thread_id)
+    config = entry["config"]
+
+    try:
+        from langgraph.types import Command
+
+        t_start = time.perf_counter()
+        result = await dd_graph.ainvoke(
+            Command(resume={
+                "approved": body.approved,
+                "reviewed_by": body.reviewed_by,
+                "notes": body.notes or "",
+            }),
+            config,
+        )
+        elapsed = time.perf_counter() - t_start
+
+        _track_workflow_metrics(result, elapsed)
+
+        HITL_APPROVALS.labels(
+            reason=(result.get("approval_reason") or "score_threshold")[:40],
+            decision="approved" if body.approved else "rejected",
+        ).inc()
+
+        logger.info(
+            "hitl_decision_applied",
+            thread_id=thread_id,
+            approved=body.approved,
+            reviewed_by=body.reviewed_by,
+        )
+
+        return {"status": "completed", "thread_id": thread_id, **result}
+
+    except Exception as e:
+        # Put the entry back so it can be retried
+        _pending_hitl[thread_id] = entry
+        logger.error("hitl_resume_failed", thread_id=thread_id, error=str(e))
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/history/{company_id}")

@@ -232,10 +232,17 @@ class ValueCreationAgent:
         gap_result = await get_gap_analysis.ainvoke({"company_id": company_id, "target": 80.0})
         gap_data = json.loads(gap_result)
         projected_impact = gap_data.get("projected_ebitda_pct", 3.5)
-        requires_approval = projected_impact > 5.0 or state.get("requires_approval", False)
+
+        # Determine whether this node triggers a NEW HITL gate.
+        # A fresh trigger needs approval_status reset to "pending" so the supervisor
+        # recognises it — even if a prior HITL was already approved in this run.
+        ebitda_triggers_hitl = projected_impact > 5.0
+        requires_approval = ebitda_triggers_hitl or state.get("requires_approval", False)
         approval_reason = state.get("approval_reason") or (
-            f"EBITDA {projected_impact}% > 5%" if projected_impact > 5 else None
+            f"EBITDA impact {projected_impact:.1f}% exceeds 5% threshold" if ebitda_triggers_hitl else None
         )
+        # Reset approval status to "pending" only when THIS node raises a new flag
+        approval_status = "pending" if ebitda_triggers_hitl else state.get("approval_status")
 
         # Persist gap analysis highlights for future sessions
         top_gaps = [g.get("dimension") for g in gap_data.get("gaps", [])[:3]]
@@ -258,6 +265,7 @@ class ValueCreationAgent:
             },
             "requires_approval": requires_approval,
             "approval_reason": approval_reason,
+            "approval_status": approval_status,
             "messages": [
                 {
                     "role": "assistant",
