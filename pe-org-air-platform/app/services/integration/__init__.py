@@ -59,7 +59,7 @@ class BaseSDKClient:
         """
         url = f"{self.base_url}{path}"
         try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
+            async with httpx.AsyncClient(timeout=self.timeout, follow_redirects=True) as client:
                 response = await client.request(
                     method,
                     url,

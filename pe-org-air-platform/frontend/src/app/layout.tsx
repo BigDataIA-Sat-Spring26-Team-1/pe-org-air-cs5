@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { LayoutDashboard, FileSearch, Settings, BookOpen, BarChart3, Database, Terminal, TrendingUp, Brain } from "lucide-react";
+import { LayoutDashboard, FileSearch, Settings, BookOpen, BarChart3, Database, Terminal, TrendingUp, Brain, FileText, Plug, GitBranch, DollarSign, Activity } from "lucide-react";
 import Link from "next/link";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -35,6 +35,11 @@ export default function RootLayout({
               <NavItem href="/readiness" icon={<TrendingUp size={20} />} label="AI Readiness" />
               <NavItem href="/explorer" icon={<FileSearch size={20} />} label="SEC Explorer" />
               <NavItem href="/rag" icon={<Brain size={20} />} label="RAG Analysis" />
+              <NavItem href="/documents" icon={<FileText size={20} />} label="Documents" />
+              <NavItem href="/mcp-server" icon={<Plug size={20} />} label="MCP Server" />
+              <NavItem href="/workflow" icon={<GitBranch size={20} />} label="Agentic Workflow" />
+              <NavItem href="/investments" icon={<DollarSign size={20} />} label="Investment ROI" />
+              <NavItem href="/observability" icon={<Activity size={20} />} label="Observability" />
               <NavItem href="/manage" icon={<Settings size={20} />} label="Management" />
               <NavItem href="/playground" icon={<Terminal size={20} />} label="API Playground" />
               <NavItem href="/tutorial" icon={<BookOpen size={20} />} label="Tutorials" />

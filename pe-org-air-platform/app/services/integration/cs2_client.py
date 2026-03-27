@@ -97,6 +97,21 @@ class CS2Client(BaseSDKClient):
             offset=offset,
         )
 
+    async def count_evidence(
+        self,
+        ticker: Optional[str] = None,
+        company_name: Optional[str] = None,
+        category: Optional[str] = None,
+    ) -> int:
+        """``GET /api/v1/signals/evidence/count`` — returns total row count without fetching data."""
+        result = await self._get(
+            "/api/v1/signals/evidence/count",
+            ticker=ticker,
+            company_name=company_name,
+            category=category,
+        )
+        return int(result.get("count", 0))
+
     async def get_evidence_stats(self) -> Dict[str, Any]:
         """``GET /api/v1/evidence/stats``"""
         return await self._get("/api/v1/evidence/stats")

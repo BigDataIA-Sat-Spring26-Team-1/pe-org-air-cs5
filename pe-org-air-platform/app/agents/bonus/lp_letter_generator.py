@@ -10,6 +10,7 @@ from docx.shared import Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 from exercises.agentic_due_diligence import run_due_diligence
+from app.services.integration.portfolio_data_service import portfolio_data_service
 
 
 def _fmt_score(value, decimals: int = 1) -> str:
@@ -53,6 +54,19 @@ def _investment_thesis(org_air: float) -> str:
 
 
 async def generate_lp_letter(company_id: str, assessment_type: str = "full") -> str:
+    # Look up company name and ticker for display
+    company_name = company_id
+    company_ticker = company_id
+    try:
+        views = await portfolio_data_service.get_portfolio_view("growth_fund_v")
+        for v in views:
+            if v.company_id == company_id:
+                company_name = v.name
+                company_ticker = v.ticker
+                break
+    except Exception:
+        pass
+
     result = await run_due_diligence(company_id, assessment_type)
 
     doc = Document()
@@ -69,7 +83,7 @@ async def generate_lp_letter(company_id: str, assessment_type: str = "full") -> 
     doc.add_paragraph()
 
     subject = doc.add_paragraph()
-    subject_run = subject.add_run(f"Re: Portfolio Update — {company_id}")
+    subject_run = subject.add_run(f"Re: Portfolio Update — {company_name} ({company_ticker})")
     subject_run.bold = True
 
     doc.add_paragraph()
@@ -77,7 +91,7 @@ async def generate_lp_letter(company_id: str, assessment_type: str = "full") -> 
     # ── Opening ───────────────────────────────────────────────────────────────
     doc.add_paragraph(
         f"We are pleased to provide you with an update on our due diligence assessment "
-        f"of {company_id}. The following letter summarises the key findings from our "
+        f"of {company_name}. The following letter summarises the key findings from our "
         f"Org-AI-R evaluation and our forward-looking value creation thesis."
     )
     doc.add_paragraph()
@@ -117,15 +131,23 @@ async def generate_lp_letter(company_id: str, assessment_type: str = "full") -> 
     dimensions_covered = sec.get("dimensions_covered") or []
 
     doc.add_heading("Regulatory & Market Intelligence", level=2)
-    if findings:
-        if isinstance(findings, list):
-            for item in findings[:5]:
-                doc.add_paragraph(str(item), style="List Bullet")
-        elif isinstance(findings, dict):
-            for key, value in list(findings.items())[:5]:
+    # findings may be a dict {"count": N, "items": [...]} or a list
+    evidence_items = []
+    if isinstance(findings, dict):
+        evidence_items = findings.get("items") or []
+    elif isinstance(findings, list):
+        evidence_items = findings
+
+    if evidence_items:
+        for item in evidence_items[:5]:
+            if isinstance(item, dict):
+                title = item.get("title") or item.get("description", "")[:80] or "Evidence signal"
+                category = item.get("category", "")
                 p = doc.add_paragraph(style="List Bullet")
-                p.add_run(f"{key}: ").bold = True
-                p.add_run(str(value))
+                p.add_run(f"[{category}] ").bold = True
+                p.add_run(title[:120])
+            else:
+                doc.add_paragraph(str(item)[:120], style="List Bullet")
     else:
         doc.add_paragraph("No SEC findings available at this time.")
 
@@ -162,10 +184,26 @@ async def generate_lp_letter(company_id: str, assessment_type: str = "full") -> 
     vc_plan = result.get("value_creation_plan") or {}
     gap_data = vc_plan.get("gap_analysis") or {}
     if gap_data:
-        for key, value in gap_data.items():
-            p = doc.add_paragraph(style="List Bullet")
-            p.add_run(f"{key.replace('_', ' ').title()}: ").bold = True
-            p.add_run(str(value))
+        scalar_keys = ["target_org_air", "gap_count", "top_priority", "estimated_investment", "projected_ebitda_pct"]
+        for key in scalar_keys:
+            if key in gap_data:
+                p = doc.add_paragraph(style="List Bullet")
+                p.add_run(f"{key.replace('_', ' ').title()}: ").bold = True
+                p.add_run(str(gap_data[key]))
+        gaps = gap_data.get("gaps") or []
+        if gaps:
+            doc.add_heading("Top Gaps", level=2)
+            for gap in gaps[:5]:
+                if isinstance(gap, dict):
+                    dim = gap.get("dimension", "").replace("_", " ").title()
+                    g = doc.add_paragraph(style="List Bullet")
+                    g.add_run(f"{dim}: ").bold = True
+                    g.add_run(
+                        f"Gap {gap.get('gap', 'N/A')} pts | Priority: {gap.get('priority', 'N/A')}"
+                    )
+                    initiatives = gap.get("initiatives") or []
+                    if initiatives:
+                        doc.add_paragraph(f"  Actions: {'; '.join(initiatives[:2])}")
     else:
         doc.add_paragraph("Value creation plan is being finalised.")
 
@@ -204,7 +242,7 @@ async def generate_lp_letter(company_id: str, assessment_type: str = "full") -> 
     doc.add_paragraph("PE Org-AI-R Platform")
 
     # ── Save ──────────────────────────────────────────────────────────────────
-    output_path = f"lp_letter_{company_id}.docx"
+    output_path = f"lp_letter_{company_ticker}.docx"
     doc.save(output_path)
     return output_path
 

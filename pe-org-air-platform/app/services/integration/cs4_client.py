@@ -14,10 +14,10 @@ class CS4Client(BaseSDKClient):
         self, company_id: str, dimension: Dimension
     ) -> ScoreJustification:
         """``POST /api/v1/justify``"""
-        payload = {"company_id": company_id}
-        # To call justify properly, could be POST /api/v1/justify
-        # Or you can do it specifically via RAG if needed.
-        data = await self._post("/api/v1/justify", json=payload)
+        # /api/v1/rag/justify expects {"ticker": ..., "top_k": ...}
+        # company_id is used as ticker throughout this codebase (e.g. "NVDA")
+        payload = {"ticker": company_id, "top_k": 5}
+        data = await self._post("/api/v1/rag/justify", payload)
         # Parse output to return the ScoreJustification matching the dimension
         # Normally this returns an ICMeetingPackage.
         # So we'll fetch just what we need.
@@ -25,14 +25,17 @@ class CS4Client(BaseSDKClient):
         dim_str = dimension.value if hasattr(dimension, 'value') else str(dimension)
         found = justifications.get(dim_str, {})
         
-        # Simple instantiation logic for testing
         return ScoreJustification(
+            company_id=company_id,
             dimension=dimension,
-            score=found.get("score", 70.0),
-            level=found.get("level", 3),
-            level_name=found.get("level_name", "Adequate"),
-            evidence_strength=found.get("evidence_strength", "moderate"),
-            rubric_criteria=found.get("rubric_criteria", "Standard criteria hit"),
+            score=found.get("score", 0.0),
+            level=found.get("level", 1),
+            level_name=found.get("level_name", "Nascent"),
+            confidence_interval=tuple(found.get("confidence_interval", [0.0, 100.0])[:2]),
+            rubric_criteria=found.get("rubric_criteria", ""),
+            rubric_keywords=found.get("rubric_keywords", []),
             supporting_evidence=found.get("supporting_evidence", []),
-            gaps_identified=found.get("gaps_identified", [])
+            gaps_identified=found.get("gaps_identified", []),
+            generated_summary=found.get("generated_summary", ""),
+            evidence_strength=found.get("evidence_strength", "moderate"),
         )

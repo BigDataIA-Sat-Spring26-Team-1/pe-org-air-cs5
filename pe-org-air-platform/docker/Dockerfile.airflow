@@ -1,0 +1,30 @@
+
+# ----------------------------------------------------------------------
+# DOCKERFILE FOR AIRFLOW SERVICES (webserver, scheduler, triggerer, init)
+# ----------------------------------------------------------------------
+# Uses minimal requirements compatible with apache-airflow==2.8.1.
+# Do NOT add pydantic v2, fastapi, langchain, or any package that conflicts
+# with airflow's pinned dependencies.
+FROM apache/airflow:2.8.1-python3.11
+
+USER root
+
+RUN apt-get update && apt-get install -y \
+    gcc \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/bin/uv
+
+# Install ONLY airflow-compatible packages (does not touch airflow itself)
+COPY requirements-airflow.txt /requirements-airflow.txt
+RUN uv pip install --no-cache --system -r /requirements-airflow.txt
+
+USER airflow
+
+# Copy app code (DAGs reference app modules)
+COPY --chown=airflow:root app /opt/airflow/app
+COPY --chown=airflow:root app /app
+COPY --chown=airflow:root dags /opt/airflow/dags
+
+ENV PYTHONPATH="${PYTHONPATH}:/opt/airflow:/app"

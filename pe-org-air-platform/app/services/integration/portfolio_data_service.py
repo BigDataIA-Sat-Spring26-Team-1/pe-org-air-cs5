@@ -57,32 +57,46 @@ class PortfolioDataService:
 
         views = []
         for company in companies:
-            # We call the existing list endpoint because get_assessment by company is not fully standard in the api yet.
-            # Usually it returns Dict, we will parse out fields.
             assessment_data = await self.cs3.list_assessments(company_id=company.company_id)
             items = assessment_data.get("items", [])
             org_air = 0.0
             vr_score = 0.0
             hr_score = 0.0
             syn_score = 1.0
-            dims = {}
+            dims: Dict[str, float] = {}
             ci = (0.0, 100.0)
-            
+
             if items:
                 v = items[0]
-                org_air = v.get("org_air_score", 0.0)
-                vr_score = v.get("v_r_score", 0.0)
-                hr_score = v.get("h_r_score", 0.0)
-                syn_score = v.get("synergy_score", 1.0)
-                scores = v.get("dimension_scores", [])
-                for s in scores:
-                    dims[s["dimension"]] = s.get("score", 0.0)
-                ci_list = v.get("confidence_interval")
-                if ci_list and len(ci_list) >= 2:
-                    ci = (ci_list[0], ci_list[1])
-                    
-            # Fetch specific evidence details
-            evidence = await self.cs2.get_evidence(ticker=company.ticker)
+                assessment_id = v.get("id")
+                org_air   = v.get("org_air_score", 0.0) or 0.0
+                vr_score  = v.get("v_r_score", 0.0) or 0.0
+                hr_score  = v.get("h_r_score", 0.0) or 0.0
+                syn_score = v.get("synergy_score", 1.0) or 1.0
+
+                # confidence_interval lives in separate columns, not a JSON array
+                ci_lower = v.get("confidence_lower")
+                ci_upper = v.get("confidence_upper")
+                if ci_lower is not None and ci_upper is not None:
+                    ci = (float(ci_lower), float(ci_upper))
+
+                # dimension_scores are in a separate DIMENSION_SCORES table
+                if assessment_id:
+                    try:
+                        dim_list = await self.cs3.get_dimension_scores(assessment_id)
+                        for s in (dim_list if isinstance(dim_list, list) else []):
+                            dim_name = s.get("dimension") or s.get("name")
+                            if dim_name:
+                                dims[dim_name] = float(s.get("score", 0.0) or 0.0)
+                    except Exception:
+                        pass  # dimension scores unavailable — leave dims empty
+
+            # Fetch total evidence count via COUNT(*) — no row data transferred
+            evidence_count = 0
+            try:
+                evidence_count = await self.cs2.count_evidence(ticker=company.ticker)
+            except Exception:
+                evidence_count = 0
 
             entry_score = await self._get_entry_score(company.company_id)
 
@@ -98,8 +112,8 @@ class PortfolioDataService:
                 dimension_scores=dims,
                 confidence_interval=ci,
                 entry_org_air=entry_score,
-                delta_since_entry=org_air - entry_score,
-                evidence_count=len(evidence),
+                delta_since_entry=round(org_air - entry_score, 2),
+                evidence_count=evidence_count,
             ))
 
         return views

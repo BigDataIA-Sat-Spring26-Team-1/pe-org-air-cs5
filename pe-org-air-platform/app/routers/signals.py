@@ -237,7 +237,24 @@ async def list_signals(
     cache.set_list(cache_key, signal_models, ttl_seconds=3600)
     return signal_models
 
-@router.get("/evidence", 
+@router.get("/evidence/count",
+            summary="Count evidence items",
+            description="Return the total number of evidence items for a company without fetching the rows.")
+async def count_evidence(
+    ticker: Optional[str] = None,
+    company_name: Optional[str] = None,
+    company_id: Optional[str] = None,
+    category: Optional[SignalCategory] = None,
+):
+    """Lightweight COUNT(*) — use this instead of fetching all rows just to get a number."""
+    if not company_id:
+        target_company = await resolve_company(ticker, company_name)
+        company_id = target_company['id']
+    total = await db.count_signal_evidence(company_id, category)
+    return {"count": total}
+
+
+@router.get("/evidence",
             response_model=List[SignalEvidence],
             summary="List all evidence",
             description="Retrieve a paginated list of all granular evidence items (individual job postings, patents, etc.).")
@@ -246,7 +263,7 @@ async def list_evidence(
     company_name: Optional[str] = None,
     company_id: Optional[str] = None,
     category: Optional[SignalCategory] = None,
-    limit: int = Query(100, ge=1, le=500, description="Maximum number of evidence items to return"),
+    limit: int = Query(100, ge=1, le=5000, description="Maximum number of evidence items to return"),
     offset: int = Query(0, ge=0, description="Number of evidence items to skip")
 ):
     """Lists granular evidence items (jobs, patents, etc) for a company with pagination."""

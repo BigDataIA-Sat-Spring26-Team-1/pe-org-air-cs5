@@ -11,8 +11,11 @@
 ![Nginx](https://img.shields.io/badge/Nginx-Reverse_Proxy-009639?style=for-the-badge&logo=nginx)
 ![ChromaDB](https://img.shields.io/badge/ChromaDB-Vector_Store-FF6B35?style=for-the-badge)
 ![LiteLLM](https://img.shields.io/badge/LiteLLM-Multi--Model_Router-6B46C1?style=for-the-badge)
+![LangGraph](https://img.shields.io/badge/LangGraph-Agent_Orchestration-1C7D54?style=for-the-badge)
+![MCP](https://img.shields.io/badge/MCP-Tool_Gateway-FF6600?style=for-the-badge)
+![Prometheus](https://img.shields.io/badge/Prometheus-Observability-E6522C?style=for-the-badge&logo=prometheus)
 
-The **PE Org-AI-R Platform** is a sophisticated data orchestration and analytics platform engineered to help Private Equity firms assess the technological maturity and AI readiness of target portfolio companies. The system automates the capture of high-fidelity signals from SEC filings, global patent registries, technology job markets, and **Glassdoor employee reviews** to compute a multi-dimensional AI-readiness score. **Case Study 4** extends the platform with a **Retrieval-Augmented Generation (RAG) Search Engine** — combining ChromaDB vector search, BM25 sparse retrieval, and a multi-provider LLM router (LiteLLM) to transform evidence into professional, citation-backed IC Meeting Packages.
+The **PE Org-AI-R Platform** is a sophisticated data orchestration and analytics platform engineered to help Private Equity firms assess the technological maturity and AI readiness of target portfolio companies. The system automates the capture of high-fidelity signals from SEC filings, global patent registries, technology job markets, and **Glassdoor employee reviews** to compute a multi-dimensional AI-readiness score. **Case Study 4** extends the platform with a **Retrieval-Augmented Generation (RAG) Search Engine** — combining ChromaDB vector search, BM25 sparse retrieval, and a multi-provider LLM router (LiteLLM) to transform evidence into professional, citation-backed IC Meeting Packages. **Case Study 5** extends the platform further with a **LangGraph multi-agent due diligence workflow**, a **Model Context Protocol (MCP) server** for Claude Desktop tool integration, **Investment ROI tracking** with MOIC/AI-attribution analytics, and a **Prometheus observability layer** — all surfaced through four new Next.js dashboard pages.
 
 ---
 
@@ -27,7 +30,11 @@ The **PE Org-AI-R Platform** is a sophisticated data orchestration and analytics
 | **Pipelines** | ![Playwright](https://img.shields.io/badge/Playwright-2EAD33?style=flat&logo=playwright&logoColor=white) **Playwright (Stealth Mode)**, **JobSpy (LinkedIn Scraper)**, **Wextractor (Glassdoor API)**, **Boto3 (AWS S3)** |
 | **RAG & Vector Search** | **ChromaDB** (Persistent HNSW cosine index), **text-embedding-3-small** (via LiteLLM), **BM25Okapi** (`rank-bm25`), **HyDE** query expansion |
 | **LLM Routing** | **LiteLLM** (`acompletion`) — multi-model async router (GPT-4o primary, Claude-3.5-Sonnet fallback) with `$50/day` budget cap |
-| **Reverse Proxy** | ![Nginx](https://img.shields.io/badge/Nginx-009639?style=flat&logo=nginx&logoColor=white) **Nginx** (unified gateway for API + Frontend + Docs) |
+| **Agentic Orchestration** | **LangGraph** (StateGraph, conditional edge routing, HITL checkpoint), **python-docx** (IC Memo & LP Letter Word export) |
+| **MCP Server** | **MCP SDK 1.x** (SSE transport + stdio), **mcp-remote** npm bridge for Claude Desktop connectivity |
+| **Observability** | **Prometheus** (`prometheus_client`) — counters for MCP tool calls, agent invocations, HITL approvals, CS client calls |
+| **Investment Analytics** | Custom MOIC / annualised-ROI / AI-attribution calculator, EV-weighted Fund-AI-R aggregator |
+| **Reverse Proxy** | ![Nginx](https://img.shields.io/badge/Nginx-009639?style=flat&logo=nginx&logoColor=white) **Nginx** (unified gateway for API + Frontend + MCP + Docs) |
 | **Testing** | ![Pytest](https://img.shields.io/badge/Pytest-0A9EDC?style=flat&logo=pytest&logoColor=white) **Pytest**, **Asyncio In-Memory Testing** |
 
 ---
@@ -58,8 +65,23 @@ The **PE Org-AI-R Platform** is a sophisticated data orchestration and analytics
   |--|--|signals.py                   # External signals & Glassdoor endpoints
   |--|--|rag.py                       # RAG API Gateway (/ingest, /query, /notes/*)
   |--|--|justify.py                   # IC Meeting Package endpoint (/justify)
+  |--|--|agent_ui.py                  # Agentic workflow + portfolio bridge (CS5)
+  |--|--|investments.py               # Investment ROI endpoints (CS5)
+  |--|--|observability.py             # Prometheus metrics-snapshot endpoint (CS5)
 │   ├── app/                    # FastAPI application source
 │   │   ├── config.py           # Application settings (Pydantic V2)
+│   │   ├── agents/             # LangGraph multi-agent system (CS5)
+│   │   │   ├── supervisor.py          # StateGraph — sequential agent routing
+│   │   │   ├── state.py               # DueDiligenceState TypedDict
+│   │   │   ├── sec_analyst.py         # SEC analysis agent node
+│   │   │   ├── scorer.py              # Scoring agent node
+│   │   │   ├── evidence_agent.py      # Evidence collection agent node
+│   │   │   ├── value_creator.py       # Value creation / gap analysis agent node
+│   │   │   └── bonus/
+│   │   │       ├── ic_memo_generator.py   # IC Memo Word (.docx) export
+│   │   │       └── lp_letter_generator.py # LP Letter Word (.docx) export
+│   │   ├── mcp/                # MCP Server (CS5)
+│   │   │   └── server.py              # MCP SSE server (7 tools, 2 prompts, 2 resources)
 │   │   ├── database/           # SQL schemas and seed data
 │   │   │   ├── schema.sql      # Core company & assessment tables
 │   │   │   ├── schema_culture.sql # Glassdoor scoring schema
@@ -86,8 +108,18 @@ The **PE Org-AI-R Platform** is a sophisticated data orchestration and analytics
 │   │       ├── integration/cs3_client.py     # SDK wrapper — Assessments/Metrics
 │   │       ├── collection/analyst_notes.py   # Analyst notes ingestion
 │   │       ├── justification/generator.py    # ~150-word PE memo generator
-│   │       └── workflows/ic_prep.py          # IC Meeting Package workflow
+│   │       ├── workflows/ic_prep.py          # IC Meeting Package workflow
+│   │       ├── analytics/fund_air.py         # EV-weighted Fund-AI-R calculator (CS5)
+│   │       ├── observability/metrics.py      # Prometheus counter/histogram definitions (CS5)
+│   │       └── tracking/
+│   │           ├── investment_tracker.py     # MOIC / ROI / AI-attribution calculator (CS5)
+│   │           └── assessment_history.py    # Multi-session trend analysis (CS5)
 │   ├── frontend/               # Next.js 15 Intelligence Dashboard (App Router)
+│   │   └── src/app/
+│   │       ├── mcp-server/page.tsx    # MCP connection guide, tools, prompts, test prompts (CS5)
+│   │       ├── workflow/page.tsx      # Agentic workflow runner with live agent progress (CS5)
+│   │       ├── investments/page.tsx   # Investment ROI dashboard — MOIC, AI attribution (CS5)
+│   │       └── observability/page.tsx # Prometheus metrics viewer with auto-refresh (CS5)
    ├── tests/                  # Pytest suite (21+ modules)
    └── pyproject.toml          # Core dependencies
 └── Prototyping/                # Research & Scratches
@@ -164,6 +196,7 @@ All services are accessible through **Nginx reverse proxy** on a single port:
 > | Path | Routed To |
 > | :--- | :--- |
 > | `/api/*` | FastAPI backend (`:8000`) |
+> | `/mcp/*` | MCP SSE server (`:3001`) |
 > | `/docs`, `/openapi.json` | Swagger/OpenAPI UI (`:8000`) |
 > | `/*` (everything else) | Next.js frontend (`:3000`) |
 
@@ -176,6 +209,7 @@ The platform runs as a **multi-container stack** orchestrated by Docker Compose:
 | **nginx** | `nginx:latest` | `:80` | Reverse proxy — single entry point for all traffic |
 | **api** | Custom (Airflow base) | Internal `:8000` | FastAPI backend with all REST endpoints |
 | **frontend** | Custom (Next.js) | Internal `:3000` | Next.js 15 frontend application |
+| **mcp-server** | Custom (Airflow base) | Internal `:3001` | MCP SSE server — Claude Desktop / mcp-remote tool gateway |
 | **airflow-webserver** | Custom (Airflow base) | `:8080` | Airflow UI for DAG management |
 | **airflow-scheduler** | Custom (Airflow base) | — | DAG scheduling & task execution |
 | **airflow-triggerer** | Custom (Airflow base) | — | Deferred task triggering |
@@ -206,7 +240,7 @@ docker builder prune -f
 
 ## 📡 API Reference
 
-The platform exposes a comprehensive REST API via **FastAPI** with 13 routers. Full interactive documentation is available at **`http://localhost/docs`** (Swagger UI) and **`http://localhost/openapi.json`** (OpenAPI spec).
+The platform exposes a comprehensive REST API via **FastAPI** with 16 routers. Full interactive documentation is available at **`http://localhost/docs`** (Swagger UI) and **`http://localhost/openapi.json`** (OpenAPI spec).
 
 ### Endpoint Overview
 
@@ -225,6 +259,9 @@ The platform exposes a comprehensive REST API via **FastAPI** with 13 routers. F
 | **RAG Search** | `/api/v1/rag` | `POST /ingest` `POST /query` `POST /notes/ingest` `POST /notes/batch` `GET /notes/{ticker}` `POST /index-airflow` `POST /complete-pipeline` `GET /health` | RAG evidence ingestion, hybrid search, analyst notes, and end-to-end pipeline |
 | **IC Justification** | `/api/v1` | `POST /justify` `GET /justify/health` | Full IC Meeting Package with per-dimension PE memos and Buy/Hold/Pass recommendation |
 | **System Testing** | `/api/v1/system` | `POST /run-tests` | Trigger the full pytest suite from the API and return results |
+| **Agent UI** | `/api/v1/agent-ui` | `GET /portfolio` `GET /fund-air` `POST /trigger-due-diligence` `GET /history/{company_id}` `POST /generate-ic-memo/{company_id}` `POST /generate-lp-letter/{company_id}` `GET /mcp-tools` | Agentic workflow trigger, document export (IC Memo / LP Letter), portfolio bridge, MCP tool registry |
+| **Investment ROI** | `/api/v1/investments` | `GET /portfolio-roi` `GET /{company_id}/roi` | MOIC, simple ROI %, annualised ROI %, AI-attributed value % per company |
+| **Observability** | `/api/v1/observability` | `GET /metrics-snapshot` | Prometheus counter snapshot grouped by metric family (mcp_tool_calls, agent_invocations, hitl_approvals, cs_client_calls) |
 
 ### Airflow DAG Trigger Endpoints
 
@@ -329,6 +366,126 @@ Manual due diligence data (interview transcripts, data room docs, DD findings) c
 
 ---
 
+## 🤖 LangGraph Agentic Due Diligence (CS5)
+
+Case Study 5 introduces a **LangGraph multi-agent orchestration layer** that automates the end-to-end due diligence workflow as a sequential state machine, replacing ad-hoc API calls with a structured, auditable agent pipeline.
+
+### Agent Graph Architecture
+The workflow is implemented as a **LangGraph `StateGraph`** with five nodes connected by conditional edges:
+
+```
+SEC Analyst ──► Scorer ──► Evidence Agent ──► Value Creator* ──► HITL Check ──► END
+                                                     │
+                          (* skipped in Quick mode) ─┘
+```
+
+| Agent Node | Responsibility |
+| :--- | :--- |
+| **SEC Analyst** | Fetches and analyses SEC filing signals for the target company |
+| **Scorer** | Invokes CS3 scoring engine to compute Org-AI-R, V^R, H^R, Synergy scores |
+| **Evidence Agent** | Retrieves CS2 evidence signals and generates RAG-backed dimension justifications |
+| **Value Creator** | Runs gap analysis and EBITDA impact projection; produces a 100-day value creation plan |
+| **HITL Check** | Pauses workflow if Org-AI-R falls below threshold (default 60); sets `approval_status = pending` for analyst review |
+
+### Full vs Quick Assessment Modes
+*   **Full** — all five nodes execute; includes Value Creator gap analysis and EBITDA projection (~60–120 s)
+*   **Quick** — skips Value Creator; produces scores + evidence without value creation plan (~20–40 s)
+
+### Document Export
+*   `POST /api/v1/agent-ui/generate-ic-memo/{company_id}` — generates a Word (.docx) **IC Memo** from due diligence results
+*   `POST /api/v1/agent-ui/generate-lp-letter/{company_id}` — generates a Word (.docx) **LP Letter** for limited partner updates
+
+### Agentic Workflow UI
+A dedicated frontend page (`/workflow`) allows analysts to:
+1. Select a portfolio company and assessment mode (Full / Quick)
+2. Watch real-time agent stage progress (animated pipeline indicator)
+3. Review results — score summary, HITL status badge, gap table, value creation bullets
+4. Download IC Memo and LP Letter directly from the results panel
+
+---
+
+## 🔌 MCP Server (CS5)
+
+The platform exposes its full analytical toolkit as a **Model Context Protocol (MCP) server**, enabling Claude Desktop and other MCP-compatible clients to call PE due diligence tools directly in natural language.
+
+### Transport & Connection
+The MCP server runs as a dedicated Docker container on port **3001** (proxied via Nginx at `/mcp/`). Claude Desktop connects via the **mcp-remote** npm bridge (stdio → SSE):
+
+```json
+{
+  "mcpServers": {
+    "pe-orgair": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "http://localhost:3001/sse"]
+    }
+  }
+}
+```
+
+### Tools (7)
+
+| Tool | Description |
+| :--- | :--- |
+| `get_portfolio_summary` | Fetch all portfolio companies with Org-AI-R, V^R, H^R scores from CS1–CS3 |
+| `calculate_org_air_score` | Calculate Org-AI-R score for a company using the CS3 scoring engine |
+| `get_company_evidence` | Fetch granular evidence signals (patents, SEC filings, job signals) from CS2 |
+| `generate_justification` | Generate a CS4 RAG-backed justification memo for a single dimension |
+| `batch_generate_justifications` | Generate justifications for multiple dimensions **in parallel** using `asyncio.gather` — faster than calling `generate_justification` repeatedly |
+| `project_ebitda_impact` | Project EBITDA uplift (base / conservative / optimistic) from Org-AI-R score delta |
+| `run_gap_analysis` | Analyse gaps to a target Org-AI-R score and recommend priority interventions |
+
+### Prompts (2)
+*   **`due_diligence_assessment`** — step-by-step prompt for full company due diligence
+*   **`ic_meeting_prep`** — structured IC memo generation workflow (portfolio context → scorecard → value thesis → recommendation)
+
+### Resources (2)
+*   **`orgair://parameters/v2.0`** — current scoring parameters (alpha, beta, gamma values)
+*   **`orgair://sectors`** — sector baselines and dimension weight overrides
+
+### MCP Server UI
+A dedicated frontend page (`/mcp-server`) provides:
+- Claude Desktop JSON config with one-click copy
+- Live connection health indicator
+- Tool cards with parameter schemas
+- Prompt workflows with copy buttons
+- 15 ready-to-use test prompts across four categories (Tool Verification, Due Diligence, Comparative, Strategic)
+
+---
+
+## 📈 Investment ROI & Fund-AI-R (CS5)
+
+### Investment Tracker
+The `InvestmentTracker` service calculates financial return metrics for each portfolio company, attributing value creation to AI readiness improvements:
+
+| Metric | Formula |
+| :--- | :--- |
+| **MOIC** | `current_ev / entry_ev` |
+| **Simple ROI %** | `(current_ev - investment_amount) / investment_amount × 100` |
+| **Annualised ROI %** | `((MOIC)^(1/years) - 1) × 100` |
+| **AI-Attributed Value %** | `delta_org_air × ebitda_multiplier / entry_ev × 100` |
+
+Entry EV and investment amount are seeded from CS3 scores on first call (EV proxy = `org_air × 100` MM; investment = `entry_ev × 0.3` MM).
+
+### Fund-AI-R Calculator
+An **EV-weighted composite score** across all portfolio companies, giving higher weight to larger positions. Surfaced on the Investment ROI dashboard alongside per-company MOIC, AI attribution bar chart, and best/worst performer cards.
+
+---
+
+## 📊 Observability (CS5)
+
+Prometheus counters are instrumented across all major platform subsystems and exposed via `GET /api/v1/observability/metrics-snapshot`:
+
+| Metric Family | Labels | What It Counts |
+| :--- | :--- | :--- |
+| `mcp_tool_calls` | `tool_name`, `status` | Every MCP tool invocation (success / error) |
+| `agent_invocations` | `agent_name`, `status` | Each LangGraph agent node execution |
+| `hitl_approvals` | `reason`, `decision` | HITL checkpoint events (pending / approved) |
+| `cs_client_calls` | `service`, `endpoint`, `status` | CS1–CS4 SDK client HTTP calls |
+
+The **Observability dashboard** (`/observability`) displays these counters in grouped tables with auto-refresh (every 15 s).
+
+---
+
 ## ⚙️ Data Pipelines & Orchestration Logic
 
 The system utilizes a multi-stage, asynchronous pipeline architecture designed for resilience and rate-limit compliance.
@@ -372,6 +529,12 @@ Each pipeline step is wrapped as an Airflow `@task` with `asyncio.run()` bridgin
 
 ### **Hybrid Retrieval over Pure Dense Search (CS4)**
 Pure vector search fails on exact technical terms; pure BM25 misses paraphrased concepts. The 60/40 RRF fusion of ChromaDB + BM25 captures both. LiteLLM provides a unified interface so model swaps require only routing table changes, not code rewrites.
+
+### **LangGraph for Agentic Workflows (CS5)**
+LangGraph's `StateGraph` provides deterministic, auditable agent routing with typed shared state (`DueDiligenceState`). Conditional edges enable Full/Quick mode branching without duplicating agent logic. The HITL node leverages LangGraph's interrupt mechanism for human-in-the-loop approval flows.
+
+### **MCP SSE over HTTP (CS5)**
+Running the MCP server as a separate container (not embedded in FastAPI) ensures clean separation of concerns and allows Claude Desktop to connect independently of the main API. The `mcp-remote` npm bridge handles the stdio↔SSE translation required by Claude Desktop's stdio-only MCP client.
 
 ---
 
@@ -429,13 +592,15 @@ The test suite is designed to be run as part of a CI/CD pipeline, ensuring that 
 4.  **BM25 is In-Memory**: The sparse index is not persisted across container restarts — re-run `/api/v1/rag/ingest` after a restart to restore the full hybrid index.
 5.  **ChromaDB Volume**: Running `docker compose down --volumes` erases all indexed evidence and will require re-ingestion.
 6.  **IC Package Prerequisites**: `POST /api/v1/justify` requires evidence to be ingested first via `POST /api/v1/rag/ingest`; returns `400` otherwise.
+7.  **Prometheus Metrics are Process-Local**: Counters reset on container restart. The observability dashboard reflects activity since last container start, not historical totals.
+8.  **MCP Sequential Tool Calls**: Claude Desktop calls MCP tools one at a time by design. Use `batch_generate_justifications` to parallelise dimension queries server-side.
 
 ---
 
 ## 👥 Team & Contributions
 
-| Member | Contributions |
+| Member | CS5 Contributions |
 | :--- | :--- |
-| **Aakash** | Base API (Models, Routers, Redis Caching), Signals Pipeline, Frontend (Tutorial, Playground), Multi-Provider LLM Router, Vector Search Kernel (ChromaDB + `text-embedding-3-small`), Hybrid Retrieval & RRF Fusion (BM25 + Dense + HyDE) |
-| **Rahul** | Base API (Models, Router, Schemas, AWS), SEC EDGAR Pipeline and Optimization, Frontend (Dashboards), Score Justification Generator (~150-word PE memos with citations), IC Meeting Prep Workflow (7-dimension concurrent synthesis), RAG API Gateway (`/ingest`, `/query`, `/justify`, `/notes/*`) |
-| **Abhinav** | Base API (Models, Routers, Docker, Snowflake), SEC EDGAR Pipeline and Optimization, Documentation, Frontend (Playground), Internal Platform SDK Clients (CS1/CS2/CS3 wrappers), Evidence-to-Dimension Mapper (CS3 signal matrix), Analyst Notes Collector (interview/data room/DD finding ingestion) |
+| **Aakash** | Advanced Hybrid RAG re-ranking (Task 8.1), History Tracking Service for multi-session trend analysis (Task 9.4), Agentic UI Bridge FastAPI router (Task 9.5), Next.js Portfolio Dashboard with live backend integration (Task 9.6), EV-weighted Fund-AI-R Calculator (Task 10.5) |
+| **Rahul** | LangGraph Core Routing StateGraph & orchestrator (Task 9.1), Shared Thread Context for autonomous state persistence (Task 10.1), Supervisor Agent quality control & conditional routing logic (Task 10.3) |
+| **Abhinav** | MCP Integration Gateway for LLM tool-calling (Task 9.2), Specialized Agents — Talent, Governance, Security in LangGraph (Task 9.3), IC Presentation Agent for final narrative synthesis & Word export (Task 10.2) |
