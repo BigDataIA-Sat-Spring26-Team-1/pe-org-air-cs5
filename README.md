@@ -42,7 +42,7 @@ The **PE Org-AI-R Platform** is a sophisticated data orchestration and analytics
 ## 📚 Documentation & Resources
 *   **Codelabs Guide**: [Detailed Step-by-Step Walkthrough](https://codelabs-preview.appspot.com/?file_id=1d5_aIaI-bnQEwG1y6XxbgD6g_XZdrPKR_MOYxSlZigs#6)
 *   **Codelab Documentation**: [Project Technical Manual](https://docs.google.com/document/d/1d5_aIaI-bnQEwG1y6XxbgD6g_XZdrPKR_MOYxSlZigs/edit?usp=sharing)
-*   **Video Demonstration**: [Full Platform Walkthrough](https://drive.google.com/file/d/1Vr77ca3YGzqyzr5XXE_Sezia3PEuSRI6/view?usp=sharing)
+*   **Video Demonstration**: [Full Platform Walkthrough](https://drive.google.com/file/d/1gPUZyuTF9yc_RYZggWYkX9Ij4WlyOb2X/view?usp=sharing)
 *   **Architecture Diagram**:
     ![Architecture Diagram](./pe-org-air-platform/docs/Architecture_Diagram.png)
 
@@ -165,6 +165,7 @@ AIRFLOW_UID=501
 # === Infrastructure ===
 REDIS_HOST="redis"
 NEXT_PUBLIC_API_URL="http://localhost:8000"
+MEM0_API_KEY="m0-..."
 
 # === External Integration (Optional) ===
 AWS_ACCESS_KEY_ID="your-key"
