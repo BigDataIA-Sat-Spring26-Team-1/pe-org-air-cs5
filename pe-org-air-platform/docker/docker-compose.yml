@@ -142,7 +142,7 @@ services:
     <<: *airflow-common
     build:
       context: ..
-      dockerfile: docker/Dockerfile
+      dockerfile: docker/Dockerfile.app
     # Override entrypoint to bypass Airflow's wrapper
     entrypoint: []
     # Override command to run FastAPI

@@ -5,7 +5,7 @@ Each portfolio company gets its own memory namespace (keyed by company_id).
 Agents write findings after each run and read prior context before starting,
 so repeated assessments of the same company accumulate institutional memory.
 
-Mem0 uses OpenAI embeddings under the hood — OPENAI_API_KEY must be set.
+Uses the Mem0 Platform API (MemoryClient) — MEM0_API_KEY must be set in .env.
 Falls back gracefully (empty results / silent writes) if Mem0 is unavailable,
 so the rest of the workflow is never blocked by a memory failure.
 """
@@ -25,33 +25,8 @@ _mem0_instance = None
 def _get_mem0():
     global _mem0_instance
     if _mem0_instance is None:
-        from mem0 import Memory
-        # Use ChromaDB (already in the container) so no qdrant server is needed.
-        # Persist to the same data directory as the RAG vector store.
-        config = {
-            "vector_store": {
-                "provider": "chroma",
-                "config": {
-                    "collection_name": "pe_orgair_agent_memory",
-                    "path": "/opt/airflow/app_code/data/mem0",
-                },
-            },
-            "llm": {
-                "provider": "openai",
-                "config": {
-                    "model": "gpt-4o-mini",
-                    "api_key": os.getenv("OPENAI_API_KEY"),
-                },
-            },
-            "embedder": {
-                "provider": "openai",
-                "config": {
-                    "model": "text-embedding-3-small",
-                    "api_key": os.getenv("OPENAI_API_KEY"),
-                },
-            },
-        }
-        _mem0_instance = Memory.from_config(config)
+        from mem0 import MemoryClient
+        _mem0_instance = MemoryClient(api_key=os.getenv("MEM0_API_KEY"))
     return _mem0_instance
 
 
@@ -59,6 +34,12 @@ async def _run_sync(fn, *args, **kwargs):
     """Run a synchronous Mem0 call in a thread pool to keep the event loop free."""
     loop = asyncio.get_event_loop()
     return await loop.run_in_executor(None, partial(fn, *args, **kwargs))
+
+
+def _extract_memories(raw) -> List[str]:
+    """Normalise platform API response (dict with 'results' key) or local list."""
+    items = raw.get("results", raw) if isinstance(raw, dict) else raw
+    return [r["memory"] for r in items if isinstance(r, dict) and "memory" in r]
 
 
 async def add_memory(content: str, company_id: str, metadata: Dict[str, Any] = None) -> None:
@@ -89,9 +70,8 @@ async def search_memory(query: str, company_id: str, limit: int = 5) -> List[str
     """
     try:
         mem = _get_mem0()
-        results = await _run_sync(mem.search, query, user_id=company_id, limit=limit)
-        # mem0 returns a list of dicts with a 'memory' key
-        return [r["memory"] for r in results if isinstance(r, dict) and "memory" in r]
+        raw = await _run_sync(mem.search, query, user_id=company_id, limit=limit)
+        return _extract_memories(raw)
     except Exception as exc:
         logger.warning("mem0_search_failed", company_id=company_id, error=str(exc))
         return []
@@ -101,8 +81,8 @@ async def get_all_memories(company_id: str) -> List[str]:
     """Return every stored memory for a company (useful for audit / debugging)."""
     try:
         mem = _get_mem0()
-        results = await _run_sync(mem.get_all, user_id=company_id)
-        return [r["memory"] for r in results if isinstance(r, dict) and "memory" in r]
+        raw = await _run_sync(mem.get_all, user_id=company_id)
+        return _extract_memories(raw)
     except Exception as exc:
         logger.warning("mem0_get_all_failed", company_id=company_id, error=str(exc))
         return []

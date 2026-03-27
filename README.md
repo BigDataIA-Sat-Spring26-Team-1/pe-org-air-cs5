@@ -44,7 +44,7 @@ The **PE Org-AI-R Platform** is a sophisticated data orchestration and analytics
 *   **Codelab Documentation**: [Project Technical Manual](https://docs.google.com/document/d/1ZMZQVoVryvtwnCxgK_-nMqgqGZELZYVzpC4K1OSTRy8/edit?usp=sharing)
 *   **Video Demonstration**: [Full Platform Walkthrough](https://drive.google.com/file/d/1Vr77ca3YGzqyzr5XXE_Sezia3PEuSRI6/view?usp=sharing)
 *   **Architecture Diagram**:
-    ![Architecture Diagram](./pe-org-air-platform/Architecture_Diagram.jpeg)
+    ![Architecture Diagram](./pe-org-air-platform/docs/Architecture_Diagram.png)
 
 ---
 
