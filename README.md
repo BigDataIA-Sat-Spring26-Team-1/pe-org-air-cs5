@@ -40,8 +40,8 @@ The **PE Org-AI-R Platform** is a sophisticated data orchestration and analytics
 ---
 
 ## 📚 Documentation & Resources
-*   **Codelabs Guide**: [Detailed Step-by-Step Walkthrough](https://codelabs-preview.appspot.com/?file_id=1ZMZQVoVryvtwnCxgK_-nMqgqGZELZYVzpC4K1OSTRy8#6)
-*   **Codelab Documentation**: [Project Technical Manual](https://docs.google.com/document/d/1ZMZQVoVryvtwnCxgK_-nMqgqGZELZYVzpC4K1OSTRy8/edit?usp=sharing)
+*   **Codelabs Guide**: [Detailed Step-by-Step Walkthrough](https://codelabs-preview.appspot.com/?file_id=1d5_aIaI-bnQEwG1y6XxbgD6g_XZdrPKR_MOYxSlZigs#6)
+*   **Codelab Documentation**: [Project Technical Manual](https://docs.google.com/document/d/1d5_aIaI-bnQEwG1y6XxbgD6g_XZdrPKR_MOYxSlZigs/edit?usp=sharing)
 *   **Video Demonstration**: [Full Platform Walkthrough](https://drive.google.com/file/d/1Vr77ca3YGzqyzr5XXE_Sezia3PEuSRI6/view?usp=sharing)
 *   **Architecture Diagram**:
     ![Architecture Diagram](./pe-org-air-platform/docs/Architecture_Diagram.png)
@@ -601,6 +601,6 @@ The test suite is designed to be run as part of a CI/CD pipeline, ensuring that 
 
 | Member | CS5 Contributions |
 | :--- | :--- |
-| **Aakash** | Advanced Hybrid RAG re-ranking (Task 8.1), History Tracking Service for multi-session trend analysis (Task 9.4), Agentic UI Bridge FastAPI router (Task 9.5), Next.js Portfolio Dashboard with live backend integration (Task 9.6), EV-weighted Fund-AI-R Calculator (Task 10.5) |
-| **Rahul** | LangGraph Core Routing StateGraph & orchestrator (Task 9.1), Shared Thread Context for autonomous state persistence (Task 10.1), Supervisor Agent quality control & conditional routing logic (Task 10.3) |
-| **Abhinav** | MCP Integration Gateway for LLM tool-calling (Task 9.2), Specialized Agents — Talent, Governance, Security in LangGraph (Task 9.3), IC Presentation Agent for final narrative synthesis & Word export (Task 10.2) |
+| **Aakash** | Advanced Hybrid RAG re-ranking (Task 8.1), History Tracking Service for multi-session trend analysis (Task 9.4), Agentic UI Bridge FastAPI router (Task 9.5), Next.js Portfolio Dashboard with live backend integration (Task 9.6), EV-weighted Fund-AI-R Calculator (Task 10.5), Mem0 Semantic Memory, MCP Integration with Claude Code, Frontend Integration, Testing Scripts, Documentation |
+| **Rahul** | LangGraph Core Routing StateGraph & orchestrator (Task 9.1), Shared Thread Context for autonomous state persistence (Task 10.1), Supervisor Agent quality control & conditional routing logic (Task 10.3), Prometheus Metrics (10.6), IC Memo Generator |
+| **Abhinav** | MCP Integration Gateway for LLM tool-calling (Task 9.2), Specialized Agents — Talent, Governance, Security in LangGraph (Task 9.3), IC Presentation Agent for final narrative synthesis & Word export (Task 10.2), LP Letter Generaiton |

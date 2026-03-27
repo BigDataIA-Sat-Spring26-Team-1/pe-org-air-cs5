@@ -159,6 +159,7 @@ services:
       - ../logs:/opt/airflow/logs
       - ../data:/opt/airflow/app_code/data
       - ../tests:/opt/airflow/tests
+      - ../pytest.ini:/opt/airflow/pytest.ini
       - ..:/opt/airflow/project_root
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]

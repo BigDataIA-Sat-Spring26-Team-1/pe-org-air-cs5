@@ -39,7 +39,7 @@ async def _run_sync(fn, *args, **kwargs):
 def _extract_memories(raw) -> List[str]:
     """Normalise platform API response (dict with 'results' key) or local list."""
     items = raw.get("results", raw) if isinstance(raw, dict) else raw
-    return [r["memory"] for r in items if isinstance(r, dict) and "memory" in r]
+    return [r["memory"] for r in items if isinstance(r, dict) and r.get("memory")]
 
 
 async def add_memory(content: str, company_id: str, metadata: Dict[str, Any] = None) -> None:
