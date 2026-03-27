@@ -446,11 +446,14 @@ async def get_prompt(name: str, arguments: Dict[str, Any]) -> list[PromptMessage
 sse_transport = SseServerTransport("/messages/")
 
 
-async def handle_sse(request: Request):
-    """MCP SSE handshake — Claude Desktop connects here."""
-    async with sse_transport.connect_sse(
-        request.scope, request.receive, request._send
-    ) as streams:
+async def _sse_asgi(scope, receive, send):
+    """
+    Raw ASGI app for the SSE endpoint.
+
+    Mounted with Starlette's Mount (not Route) so Starlette never tries to call
+    the return value as a Response — the SSE transport writes directly to `send`.
+    """
+    async with sse_transport.connect_sse(scope, receive, send) as streams:
         await mcp_server.run(
             streams[0], streams[1], mcp_server.create_initialization_options()
         )
@@ -501,7 +504,7 @@ starlette_app = Starlette(
     routes=[
         Route("/health", endpoint=health),
         Route("/metrics-json", endpoint=metrics_json),
-        Route("/sse", endpoint=handle_sse),
+        Mount("/sse", app=_sse_asgi),
         Mount("/messages/", app=sse_transport.handle_post_message),
         Route("/tools/{tool_name}", endpoint=handle_tool_http, methods=["POST"]),
     ]
