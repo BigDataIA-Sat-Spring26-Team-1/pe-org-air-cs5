@@ -46,6 +46,3 @@ CREATE TABLE IF NOT EXISTS signal_evidence (
     created_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
 );
 
--- Migration for existing environments
-ALTER TABLE signal_evidence ADD COLUMN IF NOT EXISTS indexed_in_cs4 BOOLEAN DEFAULT FALSE;
-ALTER TABLE signal_evidence ADD COLUMN IF NOT EXISTS indexed_at TIMESTAMP_NTZ;
